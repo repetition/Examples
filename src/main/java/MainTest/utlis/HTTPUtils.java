@@ -1,0 +1,168 @@
+package MainTest.utlis;
+
+import MainTest.TCPTest.TCPConnectTest;
+import com.sun.istack.internal.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class HTTPUtils {
+    private static final Logger log = LoggerFactory.getLogger(HTTPUtils.class);
+
+    public static String PostUrlAsString(String url, String post) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        HttpURLConnection connection = null;
+        try {
+            connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setConnectTimeout(1200);
+            connection.setDoInput(true);
+            if (null == post) {
+                connection.setRequestMethod("GET");
+            }
+            if (post != null) {
+                connection.setDoOutput(true);
+                connection.setRequestMethod("POST");
+                OutputStream os = connection.getOutputStream();
+                os.write(post.replace(",", "%2C").getBytes());
+                //osr.write(post.getBytes());
+                os.flush();
+                os.close();
+            }
+            if (connection.getResponseCode() == 200) {
+                printHeader(connection);
+                //获取cookie
+                String headerField = connection.getHeaderField("Set-Cookie");
+                String cookie = headerField.substring(0, headerField.indexOf(";"));
+                InputStream is = connection.getInputStream();
+                InputStreamReader isr = new InputStreamReader(is);
+                BufferedReader buffer = new BufferedReader(isr);
+                String line;
+                while ((line = buffer.readLine()) != null) {
+                    stringBuilder.append(line);
+                }
+            }
+            return stringBuilder.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    public static String Post(String url, String post, String cookie) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        HttpURLConnection connection = null;
+        InputStream is = null;
+        InputStreamReader isr = null;
+        BufferedReader buffer = null;
+        try {
+            connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setRequestMethod("POST");
+            connection.setConnectTimeout(11200);
+            connection.setDoOutput(true);
+            connection.setDoInput(true);
+            connection.setRequestProperty("Cookie", cookie);
+
+            OutputStream osr = connection.getOutputStream();
+            osr.write(post.getBytes());
+            osr.flush();
+            osr.close();
+
+            if (connection.getResponseCode() == 200) {
+             //   printHeader(connection);
+                //获取cookie
+                is = connection.getInputStream();
+                isr = new InputStreamReader(is);
+                buffer = new BufferedReader(isr);
+                String line;
+                while ((line = buffer.readLine()) != null) {
+                    stringBuilder.append(line);
+                }
+                return stringBuilder.toString();
+            }
+            return stringBuilder.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }finally {
+            close(buffer);
+            close(isr);
+            close(is);
+        }
+    }
+
+    public static Map<String, Object> PostUrlAsMap(String url, String post) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        HttpURLConnection connection = null;
+        InputStream is = null;
+        InputStreamReader isr = null;
+        BufferedReader buffer = null;
+        Map<String, Object> resMap = new HashMap<>();
+        try {
+            connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setConnectTimeout(1200);
+            connection.setDoInput(true);
+            if (null == post) {
+                connection.setRequestMethod("GET");
+            }
+            if (post != null) {
+                connection.setDoOutput(true);
+                connection.setRequestMethod("POST");
+                OutputStream os = connection.getOutputStream();
+                os.write(post.replace(",", "%2C").getBytes());
+                //  os.write(post.getBytes());
+                os.flush();
+                os.close();
+            }
+            if (connection.getResponseCode() == 200) {
+              //  printHeader(connection);
+                //获取cookie
+                String headerField = connection.getHeaderField("Set-Cookie");
+                String cookie = headerField.substring(0, headerField.indexOf(";"));
+                resMap.put("cookie", cookie);
+                is = connection.getInputStream();
+                isr = new InputStreamReader(is);
+                buffer = new BufferedReader(isr);
+                String line;
+                while ((line = buffer.readLine()) != null) {
+                    stringBuilder.append(line);
+                }
+                resMap.put("result", stringBuilder.toString());
+            }
+            return resMap;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            close(buffer);
+            close(isr);
+            close(is);
+        }
+    }
+
+    private static void printHeader(HttpURLConnection connection) {
+        Map<String, List<String>> headerFields = connection.getHeaderFields();
+        for (Map.Entry<String, List<String>> entry : headerFields.entrySet()) {
+            log.info(entry.getKey() + " : " + entry.getValue());
+        }
+    }
+
+    public static void close(Closeable io) {
+        if (null != io) {
+            try {
+                io.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+}
