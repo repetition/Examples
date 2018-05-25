@@ -6,6 +6,17 @@ public class ChunkInfo {
     private long blockSize;
     private long startIndex;//线程下载起始位置
     private long endIndex;//线程下载结束位置
+    private String uri;
+
+    private String filePath;
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
 
     private long totalSize;//文件总大小
 
@@ -59,4 +70,11 @@ public class ChunkInfo {
         this.state = state;
     }
 
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
 }

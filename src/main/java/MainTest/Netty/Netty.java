@@ -2,6 +2,7 @@ package MainTest.Netty;
 
 import com.sun.istack.internal.Nullable;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -10,6 +11,7 @@ import io.netty.handler.codec.http.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.RandomAccessFile;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -33,12 +35,22 @@ public class Netty {
         // buildChunk();
         HttpResponse httpResponse = getResponse(httpRequest);
         String content_range = httpResponse.headers().get(HttpHeaderNames.CONTENT_RANGE);
+        //获取文件的大小
         long fileTotalSize = 0;
         Pattern pattern = Pattern.compile("/(.+)");
         Matcher matcher = pattern.matcher(content_range);
         if (matcher.find()) {
             log.info(matcher.group(1));
             fileTotalSize = Long.valueOf(matcher.group(1));
+        }
+
+
+        List<ChunkInfo> chunkInfos = buildChunk(fileTotalSize);
+
+
+        for (ChunkInfo chunkInfo : chunkInfos) {
+
+
         }
 
 
@@ -63,6 +75,61 @@ public class Netty {
         }
         return chunkInfos;
     }
+
+
+    public static void startChunkDown(ChunkInfo chunkInfo, HttpRequest httpRequest) {
+
+        int BUFFER_SIZE = 1024 * 128;
+        RecvByteBufAllocator RECV_BYTE_BUF_ALLOCATOR = new AdaptiveRecvByteBufAllocator(
+                64, BUFFER_SIZE, BUFFER_SIZE);
+
+        Bootstrap bootstrap = new Bootstrap();
+
+        bootstrap.channel(NioSocketChannel.class);
+        bootstrap.option(ChannelOption.RCVBUF_ALLOCATOR, RECV_BYTE_BUF_ALLOCATOR);
+        bootstrap.option(ChannelOption.SO_RCVBUF, BUFFER_SIZE);
+        bootstrap.group(new NioEventLoopGroup());
+        bootstrap.handler(new ChannelInitializer() {
+            @Override
+            protected void initChannel(Channel ch) throws Exception {
+                ch.pipeline().addLast("httpCodec", new HttpClientCodec(4096, 8192, BUFFER_SIZE));
+                ch.pipeline().addLast("httpClinetCodec", new ChannelInboundHandlerAdapter() {
+                    @Override
+                    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+                        super.channelRead(ctx, msg);
+                        RandomAccessFile file;
+                        if (msg instanceof HttpResponse) {
+                            HttpResponse httpResponse = (HttpResponse) msg;
+                            file = new RandomAccessFile("F:\\111.exe", "rw");
+                            file.seek(chunkInfo.getStartIndex());
+                        }
+
+                        if (msg instanceof HttpContent){
+
+                            HttpContent httpContent = (HttpContent) msg;
+                            ByteBuf byteBuf = httpContent.content();
+
+                        }
+
+                    }
+                });
+            }
+        });
+
+        ChannelFuture channelFuture = bootstrap.connect(httpRequest.headers().get(HttpHeaderNames.HOST), 80);
+        channelFuture.addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (future.isSuccess()) {
+                    //设置每个线程下载的区段
+                    httpRequest.headers().set(HttpHeaderNames.RANGE, "bytes=" + chunkInfo.getStartIndex() + "-" + chunkInfo.getEndIndex());
+                    future.channel().writeAndFlush(httpRequest);
+                }
+
+            }
+        });
+    }
+
 
     private static HttpResponse getResponse(HttpRequest httpRequest) {
         //线程同步锁
