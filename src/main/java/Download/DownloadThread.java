@@ -19,10 +19,12 @@ public class DownloadThread implements Runnable {
 
     public DownloadThread(ChunkInfo chunkInfo) {
         this.chunkInfo = chunkInfo;
+
     }
 
     @Override
     public void run() {
+        long start = System.currentTimeMillis();
         log.info("线程：" + chunkInfo.getId() + "正在下载....");
         try {
             URL url = new URL(chunkInfo.getUri());
@@ -47,9 +49,10 @@ public class DownloadThread implements Runnable {
                 file.createNewFile();
             }
             RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
+            randomAccessFile.setLength(chunkInfo.getTotalSize());
             randomAccessFile.seek(chunkInfo.getStartIndex());
             InputStream is = connection.getInputStream();
-            byte[] bytes = new byte[4096];
+            byte[] bytes = new byte[1024 * 1024 * 10];
             int line;
             long length = 0;
 
@@ -57,14 +60,22 @@ public class DownloadThread implements Runnable {
                 randomAccessFile.write(bytes, 0, line);
                 length += line;
                 // log.info("线程"+chunkInfo.getId()+"下载的区块L:"+(chunkInfo.getEndIndex()-chunkInfo.getStartIndex())+": 已经下载："+length);
-                    downloadFileSize += line;
-                    log.info("下载进度：" + ((downloadFileSize*1.0) / (chunkInfo.getTotalSize()-1)*1.0) * 100.0 + "%");
+              //  downloadFileSize += line;
+              //  log.info("下载进度：" + ((downloadFileSize * 1.0) / (chunkInfo.getTotalSize() - 1) * 1.0) * 100.0 + "%");
             }
+            downloadFileSize +=length;
             is.close();
             randomAccessFile.close();
-           log.info(chunkInfo.getTotalSize()+"| " +downloadFileSize);
+            log.info(chunkInfo.getTotalSize() + "| " + downloadFileSize);
+
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        if (downloadFileSize == chunkInfo.getTotalSize()) {
+            long end = System.currentTimeMillis();
+            log.info("downloadSuccess | time:" + (end - start)/1000+"s");
+
         }
     }
 }

@@ -17,7 +17,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class DownloadMain {
-    public static int HTREAD_COUNT = 10;
+    public static int HTREAD_COUNT = 20;
     private static final Logger log = LoggerFactory.getLogger(DownloadMain.class);
     public static final ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 30, 1L, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
 
@@ -36,6 +36,10 @@ public class DownloadMain {
         for (ChunkInfo chunkInfo : chunkInfos) {
             DownloadThread downloadThread = new DownloadThread(chunkInfo);
             executor.execute(downloadThread);
+        }
+
+        while (true){
+
         }
     }
 
