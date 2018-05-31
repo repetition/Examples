@@ -1,12 +1,14 @@
 package Download;
 
 import MainTest.Netty.ChunkInfo;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.PrivateKey;
@@ -17,34 +19,37 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class DownloadMain {
-    public static int HTREAD_COUNT = 20;
+    public static int HTREAD_COUNT = 10;
     private static final Logger log = LoggerFactory.getLogger(DownloadMain.class);
-    public static final ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 30, 1L, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
+    public static final ThreadPoolExecutor executor = new ThreadPoolExecutor(20, 30, 1L, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
 
-    private static String uri = "http://10.10.9.234/res/com.thinkwin.paperless(1).apk";
+    private static String uri = "http://soft1.xitongzhijia.net:808/201411/Toolkit_V2.5.2_XiTongZhiJia.rar";
 
-    private static String filePath = "G:\\com.thinkwin.paperless(1).apk";
+    private static String filePath = "G:\\Toolkit_V2.5.2_XiTongZhiJia.rar";
 
     public static void main(String[] args) {
 
+
         long totalSize = getFileTotalSize(uri);
         log.info("文件总大小：" + totalSize);
+        createTempFile(totalSize);
+
         /**
          * 多线程下载
          */
         List<ChunkInfo> chunkInfos = buildChunkInfos(totalSize);
         for (ChunkInfo chunkInfo : chunkInfos) {
             DownloadThread downloadThread = new DownloadThread(chunkInfo);
-            executor.execute(downloadThread);
+          //  executor.execute(downloadThread);
+            new Thread(downloadThread).start();
+            return;
         }
 
-        while (true){
-
-        }
     }
 
     /**
      * 计算区块大小
+     *
      * @param totalSize
      * @return
      */
@@ -72,6 +77,29 @@ public class DownloadMain {
             log.info("线程" + i + "startIndex：" + startIndex + "| endIndex:" + endIndex);
         }
         return chunkInfos;
+    }
+
+    private static void createTempFile(long totalSize) {
+        File file = new File(filePath);
+        if (file.exists()) {
+            file.delete();
+        } else {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        RandomAccessFile randomAccessFile = null;
+        try {
+            randomAccessFile = new RandomAccessFile(file, "rw");
+            randomAccessFile.setLength(totalSize);
+            randomAccessFile.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static long getFileTotalSize(String uri) {
