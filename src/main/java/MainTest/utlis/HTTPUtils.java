@@ -32,6 +32,8 @@ public class HTTPUtils {
         try {
             connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setConnectTimeout(1200);
+            connection.setRequestProperty("User-Agent","Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36");
+           connection.setRequestProperty("Connection","keep-alive");
             connection.setDoInput(true);
             if (null == post) {
                 connection.setRequestMethod("GET");
@@ -45,8 +47,8 @@ public class HTTPUtils {
                 os.flush();
                 os.close();
             }
-            if (connection.getResponseCode() == 200) {
-                // printHeader(connection);
+            // printHeader(connection);
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_CREATED||connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 /*                //获取cookie
                 String headerField = connection.getHeaderField("Set-Cookie");
                 String cookie = headerField.substring(0, headerField.indexOf(";"));*/

@@ -1,4 +1,4 @@
-package MainTest.Jenkins;
+package MainTest.Jenkins.bean;
 
 import java.util.List;
 

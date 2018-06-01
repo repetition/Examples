@@ -1,5 +1,6 @@
 package MainTest.Jenkins;
 
+import MainTest.utlis.HTTPUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -7,15 +8,11 @@ import com.google.gson.JsonParser;
 public class Test {
 
     public static void main(String[] args) {
-        String json = "{\"errorMessage\":\"org.springframework.web.util.NestedServletException: Request processing failed; nested exception is java.lang.Exception: 1002; nested exception is org.springframework.web.util.NestedServletException: Request processing failed; nested exception is java.lang.Exception: 1002\",\"message\":\"操作失败.\",\"success\":false}";
 
-        JsonParser jsonParser = new JsonParser();
 
-        JsonObject jsonObj = (JsonObject) jsonParser.parse(json);
+        String string = HTTPUtils.PostUrlAsString("http://y.qq.com/n/yqq/song/001J5QJL1pRQYB.html", null);
 
-        JsonElement success = jsonObj.get("success");
-
-        System.out.println(success.isJsonNull());
+        System.out.println(string);
 
 
     }

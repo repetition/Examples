@@ -1,13 +1,14 @@
 package MainTest.Jenkins;
 
+import MainTest.Jenkins.bean.ModuleInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Api {
+    private static final Logger log = LoggerFactory.getLogger(Api.class);
 
     //Jenkins地址
     private static final String Jenkins_Host = "http://10.10.11.58:8080/job/";
-    //分支项目名
-    private static final String PROJECT_NAME = "失败重试机制";
-    //模块名字
-    private static final String PROJECT_MODULE_NAME = "-thinkwin-cr";
     //获取模块详情
     private static final String PROJECT_MODULE_DETAIL = "/api/json?pretty=true";
     //触发构建
@@ -15,7 +16,20 @@ public class Api {
     //获取构建进度
     private static final String PROJECT_MODULE_BUILD_PROGRESS = "/buildHistory/ajax";
 
-    private static final String download_url = "http://10.10.11.58:8080/job/%E5%A4%B1%E8%B4%A5%E9%87%8D%E8%AF%95%E6%9C%BA%E5%88%B6-thinkwin-cr/lastSuccessfulBuild/artifact/target/ROOT.war";
+    //获取构建的模块详情
+    private static final String projectModuleBuildDetail = "/api/json?pretty=true";
+
+    private static ModuleInfo mModuleInfo = null;
+
+    /**
+     * 获取Jenkins地址
+     *
+     * @return
+     */
+    public static void config(ModuleInfo moduleInfo) {
+        mModuleInfo = moduleInfo;
+    }
+
 
     /**
      * 获取Jenkins地址
@@ -23,7 +37,13 @@ public class Api {
      * @return
      */
     public static String getBaseUrl() {
-        return Jenkins_Host + PROJECT_NAME + PROJECT_MODULE_NAME;
+
+        return Jenkins_Host + mModuleInfo.getProjectName() + mModuleInfo.getProjectModuleName();
+    }
+
+    public static String getModuleLastBuildNumDetail() {
+
+        return getBaseUrl() + "/" + mModuleInfo.getLastBuildNum() + projectModuleBuildDetail;
     }
 
     /**
@@ -47,19 +67,24 @@ public class Api {
     /**
      * 获取构建进度
      *
-     * @return
+     * @return 返回构建的进度地址
      */
-    public static String getProjectModuleBuildPregressUrl() {
+    public static String getProjectModuleBuildProgressUrl() {
         return getBaseUrl() + PROJECT_MODULE_BUILD_PROGRESS;
     }
 
 
     /**
-     * 获取构建进度
+     * 获取ROOT.war下载地址
      *
-     * @return
+     * @return 返回ROOT.war下载地址
      */
     public static String getLastSuccessfulBuildDonwloadUrl() {
         return getBaseUrl() + PROJECT_MODULE_BUILD_PROGRESS + "/lastSuccessfulBuild/artifact/target/ROOT.war";
+    }
+
+
+    public static ModuleInfo getModuleInfo() {
+        return mModuleInfo;
     }
 }
