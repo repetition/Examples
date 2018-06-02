@@ -1,7 +1,5 @@
 package MainTest.utlis;
 
-import MainTest.TCPTest.TCPConnectTest;
-import com.sun.istack.internal.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

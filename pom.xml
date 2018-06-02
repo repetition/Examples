@@ -9,12 +9,81 @@
     <packaging>jar</packaging>
     <version>1.0</version>
 
+    <repositories>
+
+        <repository>
+            <id>AsposeJavaAPI</id>
+            <name>Aspose Java API</name>
+            <url>https://artifact.aspose.com/repo/</url>
+        </repository>
+
+    </repositories>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
     </properties>
 
     <dependencies>
+
+
+        <dependency>
+            <groupId>aspose-words</groupId>
+            <artifactId>aspose-words</artifactId>
+            <version>16.4</version>
+        </dependency>
+
+<!--        <dependency>
+            <groupId>com.aspose</groupId>
+            <artifactId>aspose-words</artifactId>
+            <version>18.5</version>
+            <classifier>jdk16</classifier>
+        </dependency>-->
+        <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.17</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.docx4j/docx4j -->
+        <dependency>
+            <groupId>org.docx4j</groupId>
+            <artifactId>docx4j</artifactId>
+            <version>3.3.7</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.odftoolkit/odfdom-java -->
+        <dependency>
+            <groupId>org.odftoolkit</groupId>
+            <artifactId>odfdom-java</artifactId>
+            <version>0.8.7</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>docs-to-pdf-converter</groupId>
+            <artifactId>docs-to-pdf-converter</artifactId>
+            <version>1.8</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/fr.opensagres.xdocreport/fr.opensagres.xdocreport.document.docx -->
+        <dependency>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>fr.opensagres.xdocreport.document.docx</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>fr.opensagres.xdocreport.document.pptx</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/fr.opensagres.xdocreport/fr.opensagres.xdocreport.converter.docx.xwpf -->
+        <dependency>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>fr.opensagres.xdocreport.converter.docx.xwpf</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+
 
         <!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
         <dependency>
@@ -106,15 +175,15 @@
 
         </plugins>
 
-  <!--      <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <targetPath>${project.build.directory}</targetPath>
-                <includes>
-                    <include>log4j.properties</include>
-                </includes>
-            </resource>
-        </resources>-->
+        <!--      <resources>
+                  <resource>
+                      <directory>src/main/resources</directory>
+                      <targetPath>${project.build.directory}</targetPath>
+                      <includes>
+                          <include>log4j.properties</include>
+                      </includes>
+                  </resource>
+              </resources>-->
     </build>
 
 </project>

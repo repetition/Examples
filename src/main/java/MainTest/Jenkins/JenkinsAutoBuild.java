@@ -51,25 +51,31 @@ public class JenkinsAutoBuild {
                 String url = moduleDetails.getLastSuccessfulBuild().getUrl();
                 int lastSuccessfulBuildNum = moduleDetails.getLastSuccessfulBuild().getNumber();
 
-                log.info("LastSuccessfulBuild");
-                log.info(aClass);
+                log.info("---------------------------");
                 log.info(url);
                 log.info("lastSuccessfulBuildNum:" + lastSuccessfulBuildNum);
                 log.info("lastBuildNum:" + lastBuildNum);
+                log.info("---------------------------");
 
                 while (true) {
+                    try {
+                        Thread.sleep(2000L);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     String progress = ProjectBuild.getProjectModuleBuildProgress();
                     log.info(progress);
                     LastBuildBean moduleLastBuild = ProjectBuild.getProjectModuleLastBuild();
+                    log.info("moduleLastBuild.isBuilding():"+moduleLastBuild.isBuilding());
                     if (!moduleLastBuild.isBuilding()) {
-                        log.info("构建成功!");
                         for (LastBuildBean.ArtifactsBean artifactsBean : moduleLastBuild.getArtifacts()) {
-                            log.info(artifactsBean.getFileName());
-                            log.info(artifactsBean.getDisplayPath());
+                  /*          log.info(artifactsBean.getFileName());
+                            log.info(artifactsBean.getDisplayPath());*/
                             log.info(artifactsBean.getRelativePath());
                         }
-                        log.info("正在成功 ......." + moduleInfo.getProjectName() + moduleInfo.getProjectModuleName());
-                        continue;
+                        log.info("构建成功 " + moduleInfo.getProjectName() + moduleInfo.getProjectModuleName());
+                        moduleLastBuild.getEstimatedDuration();
+                        break;
                     }
                 }
             } else {

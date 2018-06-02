@@ -15,6 +15,9 @@ public class ModuleInfo {
     //获取构建进度
     private String projectModuleBuildProgress;
 
+    private int lastSuccessfulBuildNum;
+    private int lastBuildNum;
+
     public int getLastSuccessfulBuildNum() {
         return lastSuccessfulBuildNum;
     }
@@ -30,9 +33,6 @@ public class ModuleInfo {
     public void setLastBuildNum(int lastBuildNum) {
         this.lastBuildNum = lastBuildNum;
     }
-
-    private int lastSuccessfulBuildNum;
-    private int lastBuildNum;
 
     public String getProjectName() {
         return projectName;

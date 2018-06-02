@@ -42,8 +42,12 @@ public class ProjectBuild {
             log.info("没有构建！");
         } else {
             //设置构建
+/*            ModuleInfo moduleInfo = Api.getModuleInfo();
+            moduleInfo.setLastBuildNum(lastBuildNum);
+            moduleInfo.setLastSuccessfulBuildNum(lastSuccessfulBuildNum);
+            Api.updataModileInfo(moduleInfo);*/
             Api.getModuleInfo().setLastBuildNum(lastBuildNum);
-            Api.getModuleInfo().setLastBuildNum(lastSuccessfulBuildNum);
+            Api.getModuleInfo().setLastSuccessfulBuildNum(lastSuccessfulBuildNum);
         }
         return projectDetailBean;
     }

@@ -42,7 +42,6 @@ public class Api {
     }
 
     public static String getModuleLastBuildNumDetail() {
-
         return getBaseUrl() + "/" + mModuleInfo.getLastBuildNum() + projectModuleBuildDetail;
     }
 
@@ -86,5 +85,9 @@ public class Api {
 
     public static ModuleInfo getModuleInfo() {
         return mModuleInfo;
+    }
+
+    public static void updataModileInfo(ModuleInfo moduleInfo) {
+        mModuleInfo = moduleInfo;
     }
 }
