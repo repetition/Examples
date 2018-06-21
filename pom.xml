@@ -10,14 +10,13 @@
     <version>1.0</version>
 
     <repositories>
-
         <repository>
             <id>AsposeJavaAPI</id>
             <name>Aspose Java API</name>
             <url>https://artifact.aspose.com/repo/</url>
         </repository>
-
     </repositories>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -25,20 +24,64 @@
     </properties>
 
     <dependencies>
-
-
         <dependency>
-            <groupId>aspose-words</groupId>
-            <artifactId>aspose-words</artifactId>
-            <version>16.4</version>
+            <groupId>com.jacob</groupId>
+            <artifactId>jacob</artifactId>
+            <version>1.18-M3</version>
         </dependency>
 
-<!--        <dependency>
+        <dependency>
+            <groupId>JNative</groupId>
+            <artifactId>JNative</artifactId>
+            <version>JNative_1.4RC3</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna -->
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>4.5.1</version>
+        </dependency>
+
+
+        <!--        <dependency>
+                    <groupId>aspose-words</groupId>
+                    <artifactId>aspose-words</artifactId>
+              &lt;!&ndash;      <version>16.4</version>&ndash;&gt;
+                    <version>15.8.0</version>
+                </dependency>-->
+
+
+        <!-- https://mvnrepository.com/artifact/org.fusesource/sigar -->
+        <dependency>
+            <groupId>org.fusesource</groupId>
+            <artifactId>sigar</artifactId>
+            <version>1.6.4</version>
+        </dependency>
+
+<!--
+        &lt;!&ndash; https://mvnrepository.com/artifact/org.hyperic/sigar &ndash;&gt;
+        <dependency>
+            <groupId>org.hyperic</groupId>
+            <artifactId>sigar</artifactId>
+            <version>1.6.4</version>
+        </dependency>
+-->
+
+
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.hyperic/sigar-dist &ndash;&gt;
+        <dependency>
+            <groupId>org.hyperic</groupId>
+            <artifactId>sigar-dist</artifactId>
+            <version>1.6.5.132-6</version>
+        </dependency>-->
+
+        <dependency>
             <groupId>com.aspose</groupId>
             <artifactId>aspose-words</artifactId>
             <version>18.5</version>
             <classifier>jdk16</classifier>
-        </dependency>-->
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
         <dependency>
             <groupId>org.apache.poi</groupId>

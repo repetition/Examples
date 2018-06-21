@@ -31,11 +31,14 @@ public class JenkinsAutoBuild {
             moduleInfoList.add(moduleInfo);
         }
 
-
+        log.info("总数：" + properties.stringPropertyNames().size());
+        int building = 0;
         for (ModuleInfo moduleInfo : moduleInfoList) {
-
+            building++;
             log.info("正在构建 ......." + moduleInfo.getProjectName() + moduleInfo.getProjectModuleName());
+            log.info("总数：" + building + "/" + properties.stringPropertyNames().size());
             ProjectBuild.config(moduleInfo);
+
             boolean isBuild = ProjectBuild.moduleBuild();
             try {
                 Thread.sleep(2000L);
@@ -66,7 +69,7 @@ public class JenkinsAutoBuild {
                     String progress = ProjectBuild.getProjectModuleBuildProgress();
                     log.info(progress);
                     LastBuildBean moduleLastBuild = ProjectBuild.getProjectModuleLastBuild();
-                    log.info("moduleLastBuild.isBuilding():"+moduleLastBuild.isBuilding());
+                    //   log.info("moduleLastBuild.isBuilding():"+moduleLastBuild.isBuilding());
                     if (!moduleLastBuild.isBuilding()) {
                         for (LastBuildBean.ArtifactsBean artifactsBean : moduleLastBuild.getArtifacts()) {
                   /*          log.info(artifactsBean.getFileName());
@@ -74,7 +77,6 @@ public class JenkinsAutoBuild {
                             log.info(artifactsBean.getRelativePath());
                         }
                         log.info("构建成功 " + moduleInfo.getProjectName() + moduleInfo.getProjectModuleName());
-                        moduleLastBuild.getEstimatedDuration();
                         break;
                     }
                 }
@@ -114,6 +116,10 @@ public class JenkinsAutoBuild {
             properties.load(new FileInputStream(file));
             properties.setProperty("1", "失败重试机制-thinkwin-cr");
             properties.setProperty("2", "失败重试机制-thinkwin-cr-base");
+            properties.setProperty("3", "失败重试机制-thinkwin-publish");
+            properties.setProperty("4", "失败重试机制-thinkwin-base-old");
+            properties.setProperty("5", "失败重试机制-thinkwin-extjs-ui");
+            properties.setProperty("6", "失败重试机制-thinkwin-base-user");
             properties.store(new FileOutputStream("E:\\JenkinsModuleS.properties"), "comment");
         } catch (IOException e) {
             e.printStackTrace();

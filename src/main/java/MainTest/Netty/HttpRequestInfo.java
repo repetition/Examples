@@ -11,6 +11,7 @@ import java.net.URI;
 /**
  * 请求封装类
  */
+@SuppressWarnings("unchecked")
 public class HttpRequestInfo implements HttpRequest {
     private HttpMethod httpMethod;
     private String url;

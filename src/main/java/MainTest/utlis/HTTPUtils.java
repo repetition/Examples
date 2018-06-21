@@ -17,7 +17,7 @@ public class HTTPUtils {
     private static final Logger log = LoggerFactory.getLogger(HTTPUtils.class);
 
 
-    private static Proxy getProxy() {
+    public static Proxy getProxy() {
 
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 8888));
         return proxy;
@@ -75,19 +75,68 @@ public class HTTPUtils {
         InputStreamReader isr = null;
         BufferedReader buffer = null;
         try {
-            connection = (HttpURLConnection) new URL(url).openConnection(getProxy());
-            connection.setRequestMethod("POST");
+            connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setConnectTimeout(11200);
-            connection.setDoOutput(true);
             connection.setDoInput(true);
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
             connection.setRequestProperty("Cookie", cookie);
             connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36");
+            if (null != post) {
+                connection.setRequestMethod("POST");
+                connection.setDoOutput(true);
+                OutputStream osr = connection.getOutputStream();
+                osr.write(post.getBytes(Charset.forName("utf-8")));
+                osr.flush();
+                osr.close();
+            } else {
+                connection.setRequestMethod("GET");
+            }
 
-            OutputStream osr = connection.getOutputStream();
-            osr.write(post.getBytes(Charset.forName("utf-8")));
-            osr.flush();
-            osr.close();
+            if (connection.getResponseCode() == 200) {
+                is = connection.getInputStream();
+                isr = new InputStreamReader(is);
+                buffer = new BufferedReader(isr);
+                String line;
+                while ((line = buffer.readLine()) != null) {
+                    stringBuilder.append(line);
+                }
+                return stringBuilder.toString();
+            }
+            return stringBuilder.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        } finally {
+            close(buffer);
+            close(isr);
+            close(is);
+        }
+    }
+
+    public static String Delete(String url, String post, String cookie) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        HttpURLConnection connection = null;
+        InputStream is = null;
+        InputStreamReader isr = null;
+        BufferedReader buffer = null;
+        try {
+            connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setConnectTimeout(11200);
+            connection.setDoInput(true);
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            connection.setRequestProperty("Cookie", cookie);
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36");
+            if (null != post) {
+                connection.setRequestMethod("POST");
+                connection.setDoOutput(true);
+                OutputStream osr = connection.getOutputStream();
+                osr.write(post.getBytes(Charset.forName("utf-8")));
+                osr.flush();
+                osr.close();
+            } else {
+                connection.setRequestMethod("DELETE");
+            }
 
             if (connection.getResponseCode() == 200) {
                 is = connection.getInputStream();
@@ -154,6 +203,51 @@ public class HTTPUtils {
         } catch (IOException e) {
             e.printStackTrace();
             return null;
+        } finally {
+            close(buffer);
+            close(isr);
+            close(is);
+        }
+    }
+
+    public static String Delete1(String url, String post, String cookie) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        HttpURLConnection connection = null;
+        InputStream is = null;
+        InputStreamReader isr = null;
+        BufferedReader buffer = null;
+        try {
+            connection = (HttpURLConnection) new URL(url).openConnection(getProxy());
+            connection.setRequestMethod("DELETE");
+            connection.setConnectTimeout(11200);
+            connection.setDoOutput(true);
+            connection.setDoInput(true);
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            connection.setRequestProperty("Cookie", cookie);
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36");
+
+            if (null != post) {
+                OutputStream osr = connection.getOutputStream();
+                osr.write(post.getBytes(Charset.forName("utf-8")));
+                osr.flush();
+                osr.close();
+            }
+
+            if (connection.getResponseCode() == 200) {
+                is = connection.getInputStream();
+                isr = new InputStreamReader(is);
+                buffer = new BufferedReader(isr);
+                String line;
+                while ((line = buffer.readLine()) != null) {
+                    stringBuilder.append(line);
+                }
+                return stringBuilder.toString();
+            }
+            return stringBuilder.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
         } finally {
             close(buffer);
             close(isr);

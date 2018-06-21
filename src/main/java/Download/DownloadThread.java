@@ -34,17 +34,17 @@ public class DownloadThread implements Runnable {
             connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36");
             connection.setRequestProperty("Connection", "Keep-Alive");
             //设置分段下载的头信息。  Range:做分段数据请求用的。格式: Range bytes=0-1024  或者 bytes:0-1024
-          //  connection.setRequestProperty("Range", "bytes=" + chunkInfo.getStartIndex() + "-" + chunkInfo.getEndIndex());
-            connection.setReadTimeout(10000);
+            //  connection.setRequestProperty("Range", "bytes=" + chunkInfo.getStartIndex() + "-" + chunkInfo.getEndIndex());
+            connection.setReadTimeout(30000);
             if (connection.getResponseCode() != HttpURLConnection.HTTP_PARTIAL) {
-                log.info("code:"+connection.getResponseCode());
-               // return;
+                log.info("code:" + connection.getResponseCode());
+                // return;
             }
 
             File file = new File(chunkInfo.getFilePath());
             RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
             //  randomAccessFile.setLength(chunkInfo.getTotalSize());
-         //   randomAccessFile.seek(chunkInfo.getStartIndex());
+            //   randomAccessFile.seek(chunkInfo.getStartIndex());
             InputStream is = connection.getInputStream();
             byte[] bytes = new byte[1024 * 1024 * 10];
             int line;
@@ -56,11 +56,13 @@ public class DownloadThread implements Runnable {
                 // log.info("线程"+chunkInfo.getId()+"下载的区块L:"+(chunkInfo.getEndIndex()-chunkInfo.getStartIndex())+": 已经下载："+length);
                 //  downloadFileSize += line;
                 //  log.info("下载进度：" + ((downloadFileSize * 1.0) / (chunkInfo.getTotalSize() - 1) * 1.0) * 100.0 + "%");
-                fileSizeSum(line);
+                synchronized (DownloadThread.class) {
+                    fileSizeSum(line);
+                }
             }
             is.close();
             randomAccessFile.close();
-            log.info("thread:"+chunkInfo.getId()+"|"+chunkInfo.getTotalSize() + "| " + downloadFileSize);
+            log.info("thread:" + chunkInfo.getId() + "|" + chunkInfo.getTotalSize() + "| " + downloadFileSize);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -78,7 +80,7 @@ public class DownloadThread implements Runnable {
      *
      * @param line
      */
-    public synchronized void fileSizeSum(int line) {
+    public void fileSizeSum(int line) {
         downloadFileSize += line;
         log.info("下载进度：" + ((downloadFileSize * 1.0) / (chunkInfo.getTotalSize() - 1) * 1.0) * 100.0 + "%");
     }

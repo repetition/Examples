@@ -23,9 +23,9 @@ public class DownloadMain {
     private static final Logger log = LoggerFactory.getLogger(DownloadMain.class);
     public static final ThreadPoolExecutor executor = new ThreadPoolExecutor(20, 30, 1L, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
 
-    private static String uri = "http://soft1.xitongzhijia.net:808/201411/Toolkit_V2.5.2_XiTongZhiJia.rar";
+    private static String uri = "http://www.zksoftware.com/uploads/xianzai/kfbgj/kfb(64bit%20Ver6.2.4.11).zip";
 
-    private static String filePath = "G:\\Toolkit_V2.5.2_XiTongZhiJia.rar";
+    private static String filePath = "G:\\kfb(64bit%20Ver6.2.4.11).zip";
 
     public static void main(String[] args) {
 
