@@ -2,7 +2,7 @@ package face;
 
 import java.util.List;
 
-public class listBean {
+public class ListBean {
 
 
     /**

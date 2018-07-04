@@ -27,20 +27,18 @@ public class MinaClient {
         TextLineCodecFactory factory = new TextLineCodecFactory(Charset.forName("UTF-8"));
         factory.setDecoderMaxLineLength(Integer.MAX_VALUE);
         factory.setEncoderMaxLineLength(Integer.MAX_VALUE);
-        filterChain.addLast("executor",new ExecutorFilter());
+        filterChain.addLast("executor", new ExecutorFilter());
         filterChain.addLast("codec", new ProtocolCodecFilter(factory));
-       // filterChain.addLast("logging", new LoggingFilter());
-
-        ConnectFuture future = connector.connect(new InetSocketAddress("10.10.9.234", 7007));
-        future.awaitUninterruptibly();
-        IoSession session = future.getSession();
- /*       try {
-            Thread.sleep(2000L);
-        } catch (InterruptedException e) {
+        // filterChain.addLast("logging", new LoggingFilter());
+        try {
+            ConnectFuture future = connector.connect(new InetSocketAddress("10.10.10.214", 7004));
+            future.awaitUninterruptibly();
+            IoSession session = future.getSession();
+            session.write("{wwww}");
+            log.info("connect success");
+        } catch (Exception e) {
             e.printStackTrace();
-        }*/
-        log.info("connect success");
+        }
 
-        session.write("测试包活时间！");
     }
 }

@@ -2,7 +2,6 @@ package face;
 
 import MainTest.utlis.HTTPUtils;
 import com.google.gson.*;
-import sun.rmi.runtime.Log;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -11,24 +10,25 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import static MainTest.utlis.HTTPUtils.close;
 
 public class Main {
 
-    private static final String kuangshi_Cookie = "session=35ae2f4f-e3aa-457e-8f2f-eb112c410dea";
+    private static final String kuangshi_Cookie = "session=c8217fa6-2f52-43c0-912b-b3d511273d9c";
     private static final String authorization = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYWRtaW4iLCJ1c2VyX3JvbGUiOjEsImlhdCI6MTUyOTM4Nzk2MSwiZXhwIjoxNTI5MzkxNTYxfQ.mkbtXo-a3gOzbO6gvQHcS6l_e-VFSXFRr7pcDB1Wg6o";
 
     public static void main(String[] args) {
 
-
+        System.out.println("start");
       //  kuangshiDelete();
+        kuangshiDeleteNew();
+        System.out.println("end");
 
-
-       dipingxianDelete();
+        // dipingxianDelete();
 
     }
+
 
     private static void dipingxianDelete() {
         String list = Post("http://10.10.11.87:8098/api/user/query?page_num=1&page_size=10&user_name=", null, authorization);
@@ -54,14 +54,40 @@ public class Main {
         }
     }
 
+    private static void kuangshiDeleteNew() {
+        String list = HTTPUtils.Post("http://172.16.22.221/subject/list?category=employee&size=10&_=" + new Date().getTime(), null, kuangshi_Cookie);
+        System.out.println(list);
+
+        Gson gson = new Gson();
+        ListBean listBean = gson.fromJson(list, ListBean.class);
+
+     //   String url = "http://172.16.22.221/subject/list?category=employee&page=2&size=10&_=1530509023040";
+
+        int total = listBean.getPage().getTotal();
+
+        for (int i = 0; i < total; i++) {
+            int index = i + 1;
+            System.out.println("第"+i+"页");
+            String listPage = HTTPUtils.Post("http://172.16.22.221/subject/list?category=employee&page=" + index + "&size=10&_=" + new Date().getTime(), null, kuangshi_Cookie);
+            Gson gsonPage = new Gson();
+            ListBean pageList = gsonPage.fromJson(listPage, ListBean.class);
+            for (face.ListBean.DataBean dataBean : pageList.getData()) {
+                int id = dataBean.getId();
+                String result = HTTPUtils.Delete("http://172.16.22.221/subject/" + id, null, kuangshi_Cookie);
+                System.out.println(result);
+            }
+        }
+
+
+    }
 
     private static void kuangshiDelete() {
         String list = HTTPUtils.Post("http://10.10.9.119/subject/list?category=employee&size=10&_=" + new Date().getTime(), null, kuangshi_Cookie);
         System.out.println(list);
 
         Gson gson = new Gson();
-        listBean listBean = gson.fromJson(list, listBean.class);
-        for (face.listBean.DataBean dataBean : listBean.getData()) {
+        ListBean ListBean = gson.fromJson(list, ListBean.class);
+        for (ListBean.DataBean dataBean : ListBean.getData()) {
             int id = dataBean.getId();
             String result = HTTPUtils.Delete("http://10.10.9.119/subject/" + id, null, kuangshi_Cookie);
             System.out.println(result);

@@ -112,26 +112,40 @@ public class NativeMain {
 
 
         IntByReference plcommpro = connect();
-/*        //   String records = getRecords(plcommpro, 1);
+        //   String records = getRecords(plcommpro, 1);
         log.info("================getUserData=====================");
-        getUserData(plcommpro);
+        //getUserData(plcommpro);
         log.info("================getAuthData=====================");
         getAuthData(plcommpro);
         log.info("================getTimezoneData=====================");
-        getTimezoneData(plcommpro);
+        // getTimezoneData(plcommpro);
         log.info("================getAccessReocrdsAndClear=====================");
-        getAccessReocrdsAndClear(plcommpro, 1);*/
+        // getAccessReocrdsAndClear(plcommpro, 1);
+        //删除user表信息 一个
+        //  deleteData(plcommpro, "user,CardNo=2165994");
         //  deleteData(plcommpro, "user,CardNo=2165994#CardNo=2167676");
+        //删除多个授权
+        //  deleteData(plcommpro, "timezone,TimezoneId=696001#TimezoneId=696002#TimezoneId=696003#TimezoneId=696004#TimezoneId=69300#TimezoneId=69500");
+        //删除一个授权
+        //  deleteData(plcommpro, "timezone,TimezoneId=696001");
 
+        //  deleteData(plcommpro, "userauthorize,AuthorizeTimezoneId=696001");
 
-        //   deleteData(plcommpro, "timezone,TimezoneId=696001#TimezoneId=696002#TimezoneId=696003#TimezoneId=696004#TimezoneId=69300#TimezoneId=69500");
+        //deleteAuthByTimeZoneAndDoorId(plcommpro, "2167676,2165994", "696001", "1");
+     //   deleteAuthByCardPinAndDoorId(plcommpro, "2167676,2165994", "1");
 
-        insertData(plcommpro, "timezone,,TimezoneId=69300,SunTime1=2359,MonTime1=2359,TueTime1=2359,WedTim" +
+        //添加授权 多个
+/*        insertData(plcommpro, "timezone,,TimezoneId=69300,SunTime1=2359,MonTime1=2359,TueTime1=2359,WedTim" +
                 "e1=2359,ThuTime1=2359,FriTime1=2359,SatTime1=2359#TimezoneId=69500,SunTime1=2359,MonTime1=2359,TueTime1=2359,WedTime1=2359,ThuTime1=2359,FriTime1=2359,SatTime1=2359#TimezoneId=696001,SunTime1=2359,Mon" +
                 "Time1=2359,TueTime1=2359,WedTime1=2359,ThuTime1=2359,FriTime1=2359,SatTime1=2359#TimezoneId=696002,SunTime1=2359,MonTime1=2359,TueTime1=2359,WedTime1=2359,ThuTime1=2359,FriTime1=2359,SatTime1=2359#Tim" +
                 "ezoneId=696003,SunTime1=2359,MonTime1=2359,TueTime1=2359,WedTime1=2359,ThuTime1=2359,FriTime1=2359,SatTime1=2359#TimezoneId=696004,SunTime1=2359,MonTime1=2359,TueTime1=2359,WedTime1=2359,ThuTime1=2359" +
-                ",FriTime1=2359,SatTime1=2359");
+                ",FriTime1=2359,SatTime1=2359");*/
 
+        //   insertData(plcommpro, "userauthorize,,Pin=2165994,AuthorizeTimezoneId=69500,AuthorizeDoorId=1#Pin=2167676,AuthorizeTimezoneId=69500,AuthorizeDoorId=1");
+
+       // insertData(plcommpro, "user,,CardNo=2167676,Pin=2167676,StartTime=20180620,EndTime=20500620#CardNo=2165994,Pin=2165994,StartTime=20180620,EndTime=20500620#");
+
+        deleteUser(plcommpro,"2167676,2165994");
         getTimezoneData(plcommpro);
         getUserData(plcommpro);
         openDoor(plcommpro, 1, 30);
@@ -223,6 +237,63 @@ public class NativeMain {
         return ret;
     }
 
+    /**
+     * 根据 授权di和门编号来删除 pin码  多个pin用逗号分割
+     *
+     * @param plcommpro       句柄
+     * @param pinData         pin码
+     * @param timeZoneId      时间段id
+     * @param authorizeDoorId 门编号
+     */
+    public static void deleteAuthByTimeZoneAndDoorId(IntByReference plcommpro, String pinData, String timeZoneId, String authorizeDoorId) {
+        String option = "";
+        String tableName = "userauthorize";
+        String[] pins = pinData.split(",");
+        StringBuilder items = new StringBuilder();
+        for (String pin : pins) {
+            items.append("Pin=" + pin + "\tAuthorizeTimezoneId=" + timeZoneId + "\tAuthorizeDoorId=" + authorizeDoorId + "\r\n");
+        }
+        int ret = Plcommpro.Plcommpro.DeleteDeviceData(plcommpro, tableName, items.toString(), option);
+    }
+
+    /**
+     * 根据 门编号来删除授权 pin码  多个pin用逗号分割
+     *
+     * @param plcommpro       句柄
+     * @param pinData         pin码 多个用逗号分割
+     * @param authorizeDoorId 门编号
+     */
+    public static void deleteAuthByCardPinAndDoorId(IntByReference plcommpro, String pinData, String authorizeDoorId) {
+        String option = "";
+        String tableName = "userauthorize";
+        String[] pins = pinData.split(",");
+        StringBuilder items = new StringBuilder();
+
+        for (String pin : pins) {
+            items.append("Pin=" + pin + "\tAuthorizeDoorId=" + authorizeDoorId + "\r\n");
+        }
+        int ret = Plcommpro.Plcommpro.DeleteDeviceData(plcommpro, tableName, items.toString(), option);
+    }
+
+
+    /**
+     * 根据卡号删除用户
+     *
+     * @param plcommpro 句柄
+     * @param carNo     卡号 多个用逗号分割
+     */
+    public static void deleteUser(IntByReference plcommpro, String carNo) {
+        String option = "";
+        String tableName = "user";
+        String[] pins = carNo.split(",");
+        StringBuilder items = new StringBuilder();
+        for (String pin : pins) {
+            items.append("Pin=" + pin + "\r\n");
+        }
+        int ret = Plcommpro.Plcommpro.DeleteDeviceData(plcommpro, tableName, items.toString(), option);
+    }
+
+
     public static int insertData(IntByReference plcommpro, String data) {
         String option = "";
         String[] strings = data.split(",,");
@@ -240,6 +311,27 @@ public class NativeMain {
 
 
         int ret = Plcommpro.Plcommpro.SetDeviceData(plcommpro, tableName, insertData, option);
+        log.info("state:" + ret);
+        return ret;
+    }
+
+    /**
+     * 根据卡号添加用户
+     * @param plcommpro 句柄
+     * @param carNo 卡号
+     * @return 响应吗
+     */
+    public static int insertUser(IntByReference plcommpro, String carNo) {
+        String option = "";
+        String tableName = "user";
+        String[] strings = carNo.split(",");
+        StringBuilder builder = new StringBuilder();
+        if (strings.length > 1) {
+            for (String str : strings) {
+                builder.append("CardNo=" + str + "\tPin=" + str + "\tStartTime=20180620\tEndTime=20500620\r\n");
+            }
+        }
+        int ret = Plcommpro.Plcommpro.SetDeviceData(plcommpro, tableName, builder.toString(), option);
         log.info("state:" + ret);
         return ret;
     }

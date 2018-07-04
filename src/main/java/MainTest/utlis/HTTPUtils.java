@@ -23,15 +23,15 @@ public class HTTPUtils {
         return proxy;
     }
 
-    public static String PostUrlAsString(String url, String post) {
+    public synchronized static String PostUrlAsString(String url, String post) {
 
         StringBuilder stringBuilder = new StringBuilder();
         HttpURLConnection connection = null;
         try {
             connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setConnectTimeout(1200);
-            connection.setRequestProperty("User-Agent","Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36");
-           connection.setRequestProperty("Connection","keep-alive");
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36");
+            connection.setRequestProperty("Connection", "keep-alive");
             connection.setDoInput(true);
             if (null == post) {
                 connection.setRequestMethod("GET");
@@ -46,7 +46,7 @@ public class HTTPUtils {
                 os.close();
             }
             // printHeader(connection);
-            if (connection.getResponseCode() == HttpURLConnection.HTTP_CREATED||connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_CREATED || connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 /*                //获取cookie
                 String headerField = connection.getHeaderField("Set-Cookie");
                 String cookie = headerField.substring(0, headerField.indexOf(";"));*/
@@ -67,7 +67,7 @@ public class HTTPUtils {
         }
     }
 
-    public static String Post(String url, String post, String cookie) {
+    public synchronized static String Post(String url, String post, String cookie) {
 
         StringBuilder stringBuilder = new StringBuilder();
         HttpURLConnection connection = null;
@@ -113,7 +113,7 @@ public class HTTPUtils {
         }
     }
 
-    public static String Delete(String url, String post, String cookie) {
+    public synchronized static String Delete(String url, String post, String cookie) {
 
         StringBuilder stringBuilder = new StringBuilder();
         HttpURLConnection connection = null;
@@ -159,7 +159,7 @@ public class HTTPUtils {
         }
     }
 
-    public static Map<String, Object> PostUrlAsMap(String url, String post) {
+    public synchronized static Map<String, Object> PostUrlAsMap(String url, String post) {
 
         StringBuilder stringBuilder = new StringBuilder();
         HttpURLConnection connection = null;
@@ -168,7 +168,7 @@ public class HTTPUtils {
         BufferedReader buffer = null;
         Map<String, Object> resMap = new HashMap<>();
         try {
-            connection = (HttpURLConnection) new URL(url).openConnection(getProxy());
+            connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setConnectTimeout(1200);
             connection.setDoInput(true);
             if (null == post) {
@@ -184,7 +184,7 @@ public class HTTPUtils {
                 os.close();
             }
             if (connection.getResponseCode() == 200) {
-                printHeader(connection);
+                //printHeader(connection);
                 //获取cookie
                 String headerField = connection.getHeaderField("Set-Cookie");
                 String cookie = headerField.substring(0, headerField.indexOf(";"));
@@ -262,7 +262,7 @@ public class HTTPUtils {
         }
     }
 
-    public static void close(Closeable io) {
+    public synchronized static void close(Closeable io) {
         if (null != io) {
             try {
                 io.close();
