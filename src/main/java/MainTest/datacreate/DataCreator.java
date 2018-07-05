@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class DataCreator {
     private static final Logger log = LoggerFactory.getLogger(DataCreator.class);
-    private static final String HOST = "http://10.10.9.241/";
+    private static final String HOST = "http://10.10.11.96/";
 
     private static final String login_URL = HOST + "login/auth";
 

@@ -14,7 +14,7 @@ public class Utils {
      * *            需要加密的字符串
      * * @return String字符串 加密后的字符串
      */
-    public static String getMD5(String str) {
+    public synchronized static String getMD5(String str) {
         try {
             // 创建加密对象
             MessageDigest digest = MessageDigest.getInstance("md5");

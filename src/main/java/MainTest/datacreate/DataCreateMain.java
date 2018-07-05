@@ -17,7 +17,7 @@ public class DataCreateMain {
         //创建机构
         List<String> list = DataCreator.createOrg("org100");
         //创建人员
-        DataCreator.createPerson(0,100, list.get(0), list.get(1));
+        DataCreator.createPerson(1201,1301, list.get(0), list.get(1));
         //创建用户
         DataCreator.createUser(list.get(0));
         //创建授权
