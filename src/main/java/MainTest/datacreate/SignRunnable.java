@@ -9,15 +9,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
+import static MainTest.datacreate.Api.*;
 import static MainTest.datacreate.PressureTest.*;
 
 public class SignRunnable implements Runnable {
@@ -28,18 +29,85 @@ public class SignRunnable implements Runnable {
     JsonObject asJsonObject;
     public static int count = 0;
     ConcurrentHashMap<Integer, Long> loginTimeMap;
+    String meetingRoomId;
+    String personId;
 
-    public SignRunnable(int index, CountDownLatch countDownLatch, ConcurrentHashMap<Integer, ThreadRecord> threadMap, ConcurrentHashMap<Integer, Long> loginTimeMap, JsonObject asJsonObject) {
+    public SignRunnable(int index, CountDownLatch countDownLatch, ConcurrentHashMap<Integer, ThreadRecord> threadMap, ConcurrentHashMap<Integer, Long> loginTimeMap, JsonObject asJsonObject, String meetingRoomId) {
         this.index = index;
         this.countDownLatch = countDownLatch;
         this.threadMap = threadMap;
         this.asJsonObject = asJsonObject;
         this.loginTimeMap = loginTimeMap;
+        this.meetingRoomId = meetingRoomId;
     }
 
     @Override
     public void run() {
-        long sart = System.currentTimeMillis();
+        //  signForMeeting();
+        signForMeetingNew();
+    }
+
+    private void signForMeetingNew() {
+        long start = System.currentTimeMillis();
+        String name = asJsonObject.get("name").getAsString();
+        //参会人登录
+        Map<String, String> attendeesMap = loginForMobile(name, name);
+        if (null == attendeesMap) {
+            countDownLatch.countDown();//减一
+            failCount++;
+            return;
+        }
+        //打开会议室签到页面
+        boolean yanqian_IsSuccess = meetingRoomFor_yanqian(attendeesMap);
+        if (!yanqian_IsSuccess) {
+            countDownLatch.countDown();//减一
+            failCount++;
+            return;
+        }
+        //打开会议室签到页面的资源
+        meetingRoomFor_yanqian_Resource(attendeesMap);
+
+        //打开会议室的详情信息
+        boolean findMeetingRoom_IsSuccess = findMeetingRoomFor_yanqian(attendeesMap);
+        if (!findMeetingRoom_IsSuccess) {
+            countDownLatch.countDown();//减一
+            failCount++;
+            return;
+        }
+        //获取会议室的会议信息
+        String personId = findMeetingByMeetingRoomIdFor_yanqian(attendeesMap);
+        if (null == personId) {
+            countDownLatch.countDown();//减一
+            failCount++;
+            return;
+        }
+        this.personId = personId;
+        //签到页面
+        boolean isOpen_yanhou = meetingRoomFor_yanhou(personId);
+        if (!isOpen_yanhou) {
+            countDownLatch.countDown();//减一
+            failCount++;
+            return;
+        }
+        //参会人签到
+        boolean isSuccess = meetingSignNew(attendeesMap);
+        if (!isSuccess) {
+            countDownLatch.countDown();//减一
+            failCount++;
+            return;
+        }
+        loginOutForMobile(attendeesMap);
+        long end = System.currentTimeMillis();
+        threadMap.put(index, new ThreadRecord(start, end));
+        countDownLatch.countDown();//减一
+//        log.info(countDownLatch.getCount() + "");
+        successCount++;
+
+    }
+
+    private void signForMeeting() {
+
+        long start = System.currentTimeMillis();
         String name = asJsonObject.get("name").getAsString();
         //参会人登录
         Map<String, String> attendeesMap = loginForMobile(name, name);
@@ -49,24 +117,162 @@ public class SignRunnable implements Runnable {
             return;
         }
 
-    /*    //参会人签到
+        //参会人签到
         boolean isSuccess = meetingSign(attendeesMap);
         if (!isSuccess) {
             countDownLatch.countDown();//减一
             failCount++;
             return;
-        }*/
+        }
 
 
         long end = System.currentTimeMillis();
-        threadMap.put(index, new PressureTest.ThreadRecord(sart, end));
+        threadMap.put(index, new ThreadRecord(start, end));
         countDownLatch.countDown();//减一
 //        log.info(countDownLatch.getCount() + "");
         successCount++;
+
     }
 
-    public boolean meetingSign(Map<String, String> map) {
+    /**
+     * 会议室签到接口
+     *
+     * @param map 用户信息
+     * @return 成功和失败
+     */
+    public boolean meetingSignNew(Map<String, String> map) {
+        String sign_Param_New = "meetingId=" + meetingId + "&personId=" + personId;
+        String sign_Result_New = PostUrlAsString(yanhou_sign_URL, sign_Param_New);
 
+//        log.info(sign_Result_New);
+        JsonParser parser = new JsonParser();
+        JsonObject asJsonObject = parser.parse(sign_Result_New).getAsJsonObject();
+        boolean success = asJsonObject.get("success").getAsBoolean();
+        return success;
+    }
+
+    /**
+     * 验证前页面请求
+     *
+     * @param personId 用户信息
+     * @return 返回成功信息
+     */
+    public boolean meetingRoomFor_yanhou(String personId) {
+        //log.info(sid + "|" + personName + " | " + tokenMD5);
+        String yanhouHtml_Result = PostUrlAsString(yanhouHtml_URL + "?meetingRoomId=" + meetingRoomId + "&personId=" + personId, null);
+//        log.info(yanhouHtml_Result);
+        if (yanhouHtml_Result.equals("fail")) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * 验证前获取会议室信息
+     *
+     * @param map 用户信息
+     * @return 返回成功信息
+     */
+    public boolean findMeetingRoomFor_yanqian(Map<String, String> map) {
+        String tokenMD5 = map.get("tokenMD5");
+        String sid = map.get("sid");
+        String personName = map.get("personName");
+        //log.info(sid + "|" + personName + " | " + tokenMD5);
+        String loadMeetingRoom_Param = "meetingRoomId=" + meetingRoomId;
+        String loadMeetingRoom_Result = PostUrlAsString(meetingRoom_loadMeetingRoomById_URL, loadMeetingRoom_Param);
+        //  log.info(loadMeetingRoom_Result);
+        if (loadMeetingRoom_Result.equals("fail")) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * 验证前获取会议室的会议信息
+     *
+     * @param map 用户信息
+     * @return 返回成功信息
+     */
+    public String findMeetingByMeetingRoomIdFor_yanqian(Map<String, String> map) {
+        String tokenMD5 = map.get("tokenMD5");
+        String sid = map.get("sid");
+        String personName = map.get("personName");
+        //log.info(sid + "|" + personName + " | " + tokenMD5);
+        String findMeetingByMeetingRoomId_Param = "meetingRoomId=" + meetingRoomId + "&sid=" + sid;
+        String findMeetingByMeetingRoomId_Result = PostUrlAsString(meetingRoom_findMeetingByMeetingRoomId_URL, findMeetingByMeetingRoomId_Param);
+//        log.info(findMeetingByMeetingRoomId_Result);
+        if (findMeetingByMeetingRoomId_Result.equals("fail")) {
+            return null;
+        }
+        JsonParser parser = new JsonParser();
+        JsonArray asJsonArray = parser.parse(findMeetingByMeetingRoomId_Result).getAsJsonArray();
+        String personId = asJsonArray.get(0).getAsJsonObject().get("personId").getAsString();
+        return personId;
+    }
+
+    /**
+     * 验证前页面请求
+     *
+     * @param map 用户信息
+     * @return 返回成功信息
+     */
+    public boolean meetingRoomFor_yanqian(Map<String, String> map) {
+        String tokenMD5 = map.get("tokenMD5");
+        String sid = map.get("sid");
+        String personName = map.get("personName");
+        //log.info(sid + "|" + personName + " | " + tokenMD5);
+        String sign_Result = PostUrlAsString(meetingRoomHtml_URL + "?meetingRoomId=" + meetingRoomId + "&sid=" + sid, null);
+        // log.info(meetingRoomHtml_URL + "?meetingRoomId=" + meetingRoomId + "&sid=" + sid);
+
+//        log.info(sign_Result);
+        if (sign_Result.equals("fail")) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * 验证前页面资源请求
+     *
+     * @param map 用户信息
+     * @return 返回成功信息
+     */
+    public boolean meetingRoomFor_yanqian_Resource(Map<String, String> map) {
+        String tokenMD5 = map.get("tokenMD5");
+        String sid = map.get("sid");
+        String personName = map.get("personName");
+        //css资源
+        String css1_Result = PostUrlAsString(meetingRoomHtmlCSS1_URL, null);
+        String css2_Result = PostUrlAsString(meetingRoomHtmlCSS2_URL, null);
+        //js 资源
+        String js1_Result = PostUrlAsString(meetingRoomHtmlJS1_URL, null);
+        String js2_Result = PostUrlAsString(meetingRoomHtmlJS2_URL, null);
+
+        if (css1_Result.equals("fail")) {
+
+        } else {
+
+        }
+        if (css2_Result.equals("fail")) {
+        } else {
+        }
+        if (js1_Result.equals("fail")) {
+
+        } else {
+        }
+        if (js2_Result.equals("fail")) {
+
+        } else {
+
+        }
+        return true;
+    }
+
+
+    public boolean meetingSign(Map<String, String> map) {
         count++;
         String tokenMD5 = map.get("tokenMD5");
         String sid = map.get("sid");
@@ -86,7 +292,7 @@ public class SignRunnable implements Runnable {
 
     public Map<String, String> loginForMobile(String user, String pass) {
         long start = System.currentTimeMillis();
-        String login_Param = "password=" + user + "&equipmentCode=cc8325677f6945a9&lang=zh_CN&equipmentType=Android&username=" + pass + "&equipmentOsVersion=8.0.0&token=d6d4f6c27f5ddadf2d4bd18ffb1d3977&sid=sys041530688064415";
+        String login_Param = "password=" + user + "&equipmentCode=" + getUUID32() + "&lang=zh_CN&equipmentType=Android&username=" + pass + "&equipmentOsVersion=8.0.0&token=d6d4f6c27f5ddadf2d4bd18ffb1d3977&sid=sys041530688064415";
         String login_Result = PostUrlAsString(login_MobilURL, login_Param);
         //   log.info(login_Result);
         if (login_Result.equals("fail")) {
@@ -102,7 +308,7 @@ public class SignRunnable implements Runnable {
         String token = asJsonObject.get("token").getAsString();
         String tokenMD5 = getMD5(token + "810ThinkWin811");
         String personName = asJsonObject.get("personName").getAsString();
-        log.info("tokenMD5:" + tokenMD5 + "- personName:" + personName + " - sid:" + sid);
+//        log.info("tokenMD5:" + tokenMD5 + "- personName:" + personName + " - sid:" + sid);
         boolean result = asJsonObject.get("result").getAsBoolean();
 
         if (result) {
@@ -123,6 +329,15 @@ public class SignRunnable implements Runnable {
         return map;
     }
 
+    public void loginOutForMobile(Map<String, String> map) {
+        String tokenMD5 = map.get("tokenMD5");
+        String sid = map.get("sid");
+        String loginOut_Param = "token=" + tokenMD5 + "&sid=" + sid;
+        String loginOut_Result = PostUrlAsString(loginLogout_MobilURL, loginOut_Param);
+//        log.info(loginOut_Result);
+    }
+
+
     public String PostUrlAsString(String url, String post) {
         StringBuilder stringBuilder = new StringBuilder();
         HttpURLConnection connection = null;
@@ -131,11 +346,11 @@ public class SignRunnable implements Runnable {
         InputStreamReader isr = null;
         try {
             connection = (HttpURLConnection) new URL(url).openConnection();
-            connection.setConnectTimeout(12000);
+            connection.setConnectTimeout(120 * 1000);//120s
             connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 8.0; ONEPLUS A3010 Build/OPR1.170623.032; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/58.0.3029.124 Mobile Safari/537.36");
-          //  connection.setRequestProperty("Connection", "keep-alive");
+            //  connection.setRequestProperty("Connection", "keep-alive");
             connection.setDoInput(true);
-            connection.setDoOutput(true);
+            //connection.setDoOutput(true);
             if (null == post) {
                 connection.setRequestMethod("GET");
             }
@@ -234,4 +449,11 @@ public class SignRunnable implements Runnable {
         }
         return "";
     }
+
+    public String getUUID32() {
+        String uuid = UUID.randomUUID().toString().replace("-", "").toLowerCase();
+        return uuid;
+//  return UUID.randomUUID().toString().replace("-", "").toLowerCase();
+    }
+
 }
