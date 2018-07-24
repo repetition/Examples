@@ -2,7 +2,8 @@ package MainTest.datacreate;
 
 public class Api {
 
-    public static final String HOST = "http://10.10.11.96/";
+    public static final String HOST = "http://218.26.226.125:10000/";
+  //  public static final String HOST = "http://10.10.10.214/";
     //登录
     public static final String login_MobilURL = HOST + "mobileapp/login";
     //签到 （旧版）

@@ -23,9 +23,9 @@ public class DownloadMain {
     private static final Logger log = LoggerFactory.getLogger(DownloadMain.class);
     public static final ThreadPoolExecutor executor = new ThreadPoolExecutor(20, 30, 1L, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
 
-    private static String uri = "https://gsf-fl.softonic.com/9fd/943/5a1b676abb3b325a0edbc0a54790d3d0ba/file?Expires=1530826135&Signature=3b4315be6523713c0e1cc2fcb20d7b0c5092dff7&SD_used=&channel=WEB&fdh=no&id_file=6cd2a998-96d7-11e6-ab0c-00163ed833e7&instance=softonic_en&type=PROGRAM&url=https://netspeedmonitor64.en.softonic.com&Filename=netspeedmonitor_2_5_4_0_x64_setup.msi";
+    private static String uri = "http://10.10.10.214/res/publish/manager/resources/video/8a8a887a64a6e8d90164a73373e4006b-1531813524453.mp4";
 
-    private static String filePath = "G:\\netspeedmonitor_2_5_4_0_x64_setup.msi";
+    private static String filePath = "G:\\8a8a887a64a6e8d90164a73373e4006b-1531813524453.mp4";
 
     public static void main(String[] args) {
 

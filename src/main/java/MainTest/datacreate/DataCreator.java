@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class DataCreator {
     private static final Logger log = LoggerFactory.getLogger(DataCreator.class);
-    private static final String HOST = "http://10.10.11.96/";
+    private static final String HOST = "http://218.26.226.125:10000//";
 
     private static final String login_URL = HOST + "login/auth";
 
@@ -57,7 +57,7 @@ public class DataCreator {
         JsonParser parser = new JsonParser();
         String responseObject = parser.parse(orgCdoe).getAsJsonObject().get("responseObject").getAsString();
 
-        String createOrg_Param = "parentOrga.id=0&parentOrga.orgName=" + en + "&orgType=1&orgName=" + en + "&orgNickname=" + en + "&orgCode=" + responseObject + "&toggle=function(b%2Ca)%7Breturn%20this%3D%3Db%3Fa%3Ab%7D&colorRgb=function()%7B%7D&status=1&baseSessionUserId=sys04";
+        String createOrg_Param = "parentOrga.id=1001&parentOrga.orgName=" + Utils.encoderEN("Utils.encoderEN(orgName)") + "&orgType=1&orgName=" + en + "&orgNickname=" + en + "&orgCode=" + responseObject + "&toggle=function(b%2Ca)%7Breturn%20this%3D%3Db%3Fa%3Ab%7D&colorRgb=function()%7B%7D&status=1&baseSessionUserId=sys04";
         String createOrg_Result = HTTPUtils.Post(createOrg_URL, createOrg_Param, cookie);
         log.info(createOrg_Result);
         String orgId = parser.parse(createOrg_Result).getAsJsonObject().get("responseObject").getAsJsonObject().get("id").getAsString();

@@ -27,19 +27,12 @@ public class MinServerHandler extends IoHandlerAdapter {
         super.sessionOpened(session);
         log.info(session.getRemoteAddress().toString() + " - sessionOpened");
 
-        log.info(session.getId() + "");
-
     }
 
     @Override
     public void sessionClosed(IoSession session) throws Exception {
         super.sessionClosed(session);
         log.info(session.getRemoteAddress() + " - sessionClosed");
-        log.info("session.getAttribute(\"id\"):" + session.getAttribute("id"));
-        log.info("session.getId:" + session.getId());
-        for (Map.Entry<String, IoSession> ioSessionEntry : ioSessionMap.entrySet()) {
-            log.info("ioSessionEntry.getValue().getId():" + ioSessionEntry.getValue().getId());
-        }
     }
 
     @Override
@@ -52,7 +45,6 @@ public class MinServerHandler extends IoHandlerAdapter {
     public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
         super.exceptionCaught(session, cause);
         log.info(session.getRemoteAddress() + " - exceptionCaught");
-        session.closeOnFlush();
     }
 
 
@@ -60,15 +52,6 @@ public class MinServerHandler extends IoHandlerAdapter {
     public void messageReceived(IoSession session, Object message) throws Exception {
         super.messageReceived(session, message);
         log.info(session.getRemoteAddress() + " - messageReceived");
-        log.info(session.getId() + " - messageReceived");
-        if (!isAdd) {
-            ioSessionMap.put("1", session);
-        }
-        session.setAttribute("id", "22222");
-        isAdd = true;
-        log.info("ioSessionMap.size():" + ioSessionMap.size());
-        log.info("session.getAttribute(\"id\"):" + session.getAttribute("id"));
-        log.info(message+"");
     }
 
     @Override

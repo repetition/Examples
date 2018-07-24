@@ -16,43 +16,64 @@ public class TerminalTest {
     private static final Logger log = LoggerFactory.getLogger(TerminalTest.class);
     public static final ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 1000, 1L, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
     public static final ExecutorService executorService = Executors.newCachedThreadPool();
-    public static String login_url = "http://10.10.10.214/login/auth";
-    public static String startTerminalTask_url = "http://10.10.10.214/terminalTask/startTerminalTask";
-    public static String stopTerminalTask_url = "http://10.10.10.214/terminalTask/stopTerminalTask";
+    public static String login_url = "http://10.10.9.241/login/auth";
+    public static String startTerminalTask_url = "http://10.10.9.241/terminalTask/startTerminalTask";
+    public static String stopTerminalTask_url = "http://10.10.9.241/terminalTask/stopTerminalTask";
     public static String cookie;
 
     public static void main(String[] args) {
-
+        CountDownLatch countDownLatch = new CountDownLatch(100);
         String login_param = "userName=admin&password=admin&iscookie=0&baseSessionUserId=sys04";
-        Map<String, Object> postUrlAsMap = PostUrlAsMap(login_url, login_param);
+        TerminalTest terminalTest = new TerminalTest();
+        Map<String, Object> postUrlAsMap = terminalTest.PostUrlAsMap(login_url, login_param);
         cookie = (String) postUrlAsMap.get("cookie");
 
-  /*      for (int i = 0; i < 100; i++) {
+/*        for (int i = 0; i < 100; i++) {
 
             StartTask startTask = new StartTask(i);
             StopTask stopTask = new StopTask(i);
-   *//*         executor.execute(startTask);
-            executor.execute(stopTask);*//*
+            executor.execute(startTask);
+            executor.execute(stopTask);
             new Thread(startTask).start();
             new Thread(stopTask).start();
         }*/
 
-        for (int i = 0; i < 100; i++) {
-            log.info("start --" + i);
-            String startTerminalTask_param = "id=8a8a887a644a71bd01644a876d8c0010&baseSessionUserId=sys04";
-            String startResult = Post(startTerminalTask_url, startTerminalTask_param, cookie);
+
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < 15; i++) {
+            try {
+                Thread.sleep(500L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            String startTerminalTask_param = "id=8a8a8971647d101201647d71c5630009&baseSessionUserId=sys04";
+            String startResult = terminalTest.Post(startTerminalTask_url, startTerminalTask_param, cookie);
             log.info("start:" + startResult);
-            log.info("stop --" + i);
-            String stopTerminalTask_param = "id=8a8a887a644a71bd01644a876d8c0010&baseSessionUserId=sys04";
-            String stopResult = HTTPUtils.Post(stopTerminalTask_url, stopTerminalTask_param, cookie);
+            try {
+                Thread.sleep(500L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            String stopTerminalTask_param = "id=8a8a8971647d101201647d71c5630009&baseSessionUserId=sys04";
+            String stopResult = terminalTest.Post(stopTerminalTask_url, stopTerminalTask_param, cookie);
             log.info("stop:" + stopResult);
 
         }
-        log.info("start");
-        String startTerminalTask_param = "id=8a8a887a644a71bd01644a876d8c0010&baseSessionUserId=sys04";
-        String startResult = Post(startTerminalTask_url, startTerminalTask_param, cookie);
-        log.info("start:" + startResult);
 
+
+/*        for (int i = 0; i < 100; i++) {
+            executorService.execute(new RestartTask(countDownLatch));
+        }
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }*/
+        log.info((System.currentTimeMillis() - start) / 1000 + "s");
+        log.info("start");
+        String startTerminalTask_param = "id=8a8a8971647d101201647d71c5630009&baseSessionUserId=sys04";
+        String startResult = terminalTest.Post(startTerminalTask_url, startTerminalTask_param, cookie);
+        log.info("start:" + startResult);
     }
 
     static class StartTask implements Runnable {
@@ -65,8 +86,9 @@ public class TerminalTest {
         @Override
         public void run() {
             log.info("StartTask -- " + id);
-            String startTerminalTask_param = "id=8a8a887a644a71bd01644a876d8c0010&baseSessionUserId=sys04";
-            String startResult = Post(startTerminalTask_url, startTerminalTask_param, cookie);
+            String startTerminalTask_param = "id=8a8a8971647d101201647d71c5630009&baseSessionUserId=sys04";
+            TerminalTest terminalTest = new TerminalTest();
+            String startResult = terminalTest.Post(startTerminalTask_url, startTerminalTask_param, cookie);
             log.info("start:" + startResult);
         }
     }
@@ -81,14 +103,34 @@ public class TerminalTest {
         @Override
         public void run() {
             log.info("StopTask -- " + id);
-            String stopTerminalTask_param = "id=8a8a887a644a71bd01644a876d8c0010&baseSessionUserId=sys04";
-            String stopResult = HTTPUtils.Post(stopTerminalTask_url, stopTerminalTask_param, cookie);
+            String stopTerminalTask_param = "id=8a8a8971647d101201647d71c5630009&baseSessionUserId=sys04";
+            TerminalTest terminalTest = new TerminalTest();
+            String stopResult = terminalTest.Post(stopTerminalTask_url, stopTerminalTask_param, cookie);
             log.info("stop:" + stopResult);
         }
     }
 
+    static class RestartTask implements Runnable {
+        CountDownLatch countDownLatch;
 
-    public static Map<String, Object> PostUrlAsMap(String url, String post) {
+        public RestartTask(CountDownLatch countDownLatch) {
+            this.countDownLatch = countDownLatch;
+        }
+
+        @Override
+        public void run() {
+            String startTerminalTask_param = "id=8a8a8971647d101201647d71c5630009&baseSessionUserId=sys04";
+            TerminalTest terminalTest = new TerminalTest();
+            String startResult = terminalTest.Post(startTerminalTask_url, startTerminalTask_param, cookie);
+            log.info("start:" + startResult);
+            String stopTerminalTask_param = "id=8a8a8971647d101201647d71c5630009&baseSessionUserId=sys04";
+            String stopResult = terminalTest.Post(stopTerminalTask_url, stopTerminalTask_param, cookie);
+            log.info("stop:" + stopResult);
+            countDownLatch.countDown();
+        }
+    }
+
+    public Map<String, Object> PostUrlAsMap(String url, String post) {
 
         StringBuilder stringBuilder = new StringBuilder();
         HttpURLConnection connection = null;
@@ -139,7 +181,7 @@ public class TerminalTest {
         }
     }
 
-    public static String Post(String url, String post, String cookie) {
+    public String Post(String url, String post, String cookie) {
 
         StringBuilder stringBuilder = new StringBuilder();
         HttpURLConnection connection = null;

@@ -37,28 +37,28 @@ public class SigarUtil {
 
     public static void main(String[] args) {
 
-        CpuInfo[] cpuInfoList = null;
+   /*     CpuInfo[] cpuInfoList = null;
         try {
-            cpuInfoList = sigar.getCpuInfoList();
+          *//*  cpuInfoList = sigar.getCpuInfoList();
             for (CpuInfo cpuInfo : cpuInfoList) {
                 System.out.println(cpuInfo.getTotalCores());
-            }
+            }*//*
 
             for (int i = 0; i < 100; i++) {
-                Thread.sleep(1000L);
+                Thread.sleep(500L);
                 System.out.println(CpuPerc.format(sigar.getCpuPerc().getCombined()));
             }
         } catch (SigarException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
+        }*/
 
-      /*  try {
+        try {
             net();
         } catch (Exception e) {
             e.printStackTrace();
-        }*/
+        }
 
     }
 

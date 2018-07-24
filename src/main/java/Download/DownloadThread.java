@@ -82,6 +82,6 @@ public class DownloadThread implements Runnable {
      */
     public void fileSizeSum(int line) {
         downloadFileSize += line;
-        log.info("下载进度：" + ((downloadFileSize * 1.0) / (chunkInfo.getTotalSize() - 1) * 1.0) * 100.0 + "%");
+//        log.info("下载进度：" + ((downloadFileSize * 1.0) / (chunkInfo.getTotalSize() - 1) * 1.0) * 100.0 + "%");
     }
 }

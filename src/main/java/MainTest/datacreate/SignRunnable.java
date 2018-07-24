@@ -31,15 +31,19 @@ public class SignRunnable implements Runnable {
     ConcurrentHashMap<Integer, Long> loginTimeMap;
     String meetingRoomId;
     String personId;
-
-    public SignRunnable(int index, CountDownLatch countDownLatch, ConcurrentHashMap<Integer, ThreadRecord> threadMap, ConcurrentHashMap<Integer, Long> loginTimeMap, JsonObject asJsonObject, String meetingRoomId) {
+    ConcurrentHashMap<Integer, Long> signTimeMap;
+    ConcurrentHashMap<Integer, Map<String,Long>> listTimeMap;
+    public SignRunnable(int index, CountDownLatch countDownLatch, ConcurrentHashMap<Integer, ThreadRecord> threadMap, ConcurrentHashMap<Integer, Long> loginTimeMap, JsonObject asJsonObject, String meetingRoomId, ConcurrentHashMap<Integer, Long> signTimeMap, ConcurrentHashMap<Integer, Map<String, Long>> listTimeMap) {
         this.index = index;
         this.countDownLatch = countDownLatch;
         this.threadMap = threadMap;
         this.asJsonObject = asJsonObject;
         this.loginTimeMap = loginTimeMap;
         this.meetingRoomId = meetingRoomId;
+        this.signTimeMap = signTimeMap;
+        this.listTimeMap = listTimeMap;
     }
+
 
     @Override
     public void run() {
@@ -57,13 +61,18 @@ public class SignRunnable implements Runnable {
             failCount++;
             return;
         }
+        long signStart = System.currentTimeMillis();
+
+        Map<String,Long> listMap = new HashMap<>();
         //打开会议室签到页面
+        long yanqianStart = System.currentTimeMillis();
         boolean yanqian_IsSuccess = meetingRoomFor_yanqian(attendeesMap);
         if (!yanqian_IsSuccess) {
             countDownLatch.countDown();//减一
             failCount++;
             return;
         }
+        listMap.put("yanqian",System.currentTimeMillis()-yanqianStart);
         //打开会议室签到页面的资源
         meetingRoomFor_yanqian_Resource(attendeesMap);
 
@@ -96,13 +105,13 @@ public class SignRunnable implements Runnable {
             failCount++;
             return;
         }
-        loginOutForMobile(attendeesMap);
         long end = System.currentTimeMillis();
         threadMap.put(index, new ThreadRecord(start, end));
+        signTimeMap.put(index, System.currentTimeMillis() - signStart);
         countDownLatch.countDown();//减一
+//        loginOutForMobile(attendeesMap);
 //        log.info(countDownLatch.getCount() + "");
         successCount++;
-
     }
 
     private void signForMeeting() {
@@ -294,7 +303,7 @@ public class SignRunnable implements Runnable {
         long start = System.currentTimeMillis();
         String login_Param = "password=" + user + "&equipmentCode=" + getUUID32() + "&lang=zh_CN&equipmentType=Android&username=" + pass + "&equipmentOsVersion=8.0.0&token=d6d4f6c27f5ddadf2d4bd18ffb1d3977&sid=sys041530688064415";
         String login_Result = PostUrlAsString(login_MobilURL, login_Param);
-        //   log.info(login_Result);
+         //  log.info(login_Result);
         if (login_Result.equals("fail")) {
             loginFailCount++;
             loginTimeMap.put(index, (System.currentTimeMillis() - start));
@@ -347,6 +356,7 @@ public class SignRunnable implements Runnable {
         try {
             connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setConnectTimeout(120 * 1000);//120s
+            connection.setReadTimeout(120 * 1000);
             connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 8.0; ONEPLUS A3010 Build/OPR1.170623.032; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/58.0.3029.124 Mobile Safari/537.36");
             //  connection.setRequestProperty("Connection", "keep-alive");
             connection.setDoInput(true);
@@ -398,8 +408,8 @@ public class SignRunnable implements Runnable {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                return "fail";
             }
-
         }
     }
 

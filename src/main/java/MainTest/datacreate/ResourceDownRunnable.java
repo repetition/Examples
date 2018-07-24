@@ -10,7 +10,6 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -19,41 +18,167 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
-import static MainTest.datacreate.Api.HOST;
-import static MainTest.datacreate.Api.login_MobilURL;
-import static MainTest.datacreate.PressureTest.loginCount;
-import static MainTest.datacreate.PressureTest.loginFailCount;
-import static MainTest.datacreate.PressureTest.meetingId;
+import static MainTest.datacreate.Api.*;
+import static MainTest.datacreate.PressureTest.*;
 
 public class ResourceDownRunnable implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(ResourceDownRunnable.class);
     int index;
     CountDownLatch countDownLatch;
     ConcurrentHashMap<Integer, PressureTest.ThreadRecord> threadMap;
+    ConcurrentHashMap<Integer, Long> downTimeMap;
     JsonObject asJsonObject;
     public static int count = 0;
     ConcurrentHashMap<Integer, Long> loginTimeMap;
-    String meetingRoomId;
     String personId;
 
-    public ResourceDownRunnable(int index, CountDownLatch countDownLatch, ConcurrentHashMap<Integer, PressureTest.ThreadRecord> threadMap, ConcurrentHashMap<Integer, Long> loginTimeMap, JsonObject asJsonObject, String meetingRoomId) {
+    public ResourceDownRunnable(int index, CountDownLatch countDownLatch, ConcurrentHashMap<Integer, PressureTest.ThreadRecord> threadMap, ConcurrentHashMap<Integer, Long> loginTimeMap, JsonObject asJsonObject, ConcurrentHashMap<Integer, Long> downTimeMap) {
         this.index = index;
         this.countDownLatch = countDownLatch;
         this.threadMap = threadMap;
         this.asJsonObject = asJsonObject;
         this.loginTimeMap = loginTimeMap;
-        this.meetingRoomId = meetingRoomId;
+        this.downTimeMap = downTimeMap;
     }
-
 
     @Override
     public void run() {
-
-
+        resourcePreview();
+      //  resourceDown();
     }
 
+    private void resourceDown() {
+        long start = System.currentTimeMillis();
+        String name = asJsonObject.get("name").getAsString();
+        //参会人登录
+        Map<String, String> attendeesMap = loginForMobile(name, name);
+        if (null == attendeesMap) {
+            countDownLatch.countDown();//减一
+            failCount++;
+            return;
+        }
+        //获取会议资料
+        Map<String, String> fileMap = meetingResourceList(attendeesMap);
+        if (null == fileMap) {
+            countDownLatch.countDown();//减一
+            failCount++;
+            return;
+        }
+        //下载资料
+        boolean isDown = meetingResourceDown(attendeesMap, fileMap);
+        if (!isDown) {
+            countDownLatch.countDown();//减一
+            failCount++;
+            downFail++;
+            return;
+        }
+        downSuccess++;
+        //登出
+        loginOutForMobile(attendeesMap);
 
-    public void meetingResourceDown(Map<String, String> map, String materialsPreviewAddress) {
+        long end = System.currentTimeMillis();
+        threadMap.put(index, new ThreadRecord(start, end));
+        countDownLatch.countDown();//减一
+//        log.info(countDownLatch.getCount() + "");
+        successCount++;
+    }
+
+    private void resourcePreview() {
+        long start = System.currentTimeMillis();
+        String name = asJsonObject.get("name").getAsString();
+        //参会人登录
+        Map<String, String> attendeesMap = loginForMobile(name, name);
+        if (null == attendeesMap) {
+            countDownLatch.countDown();//减一
+            failCount++;
+            return;
+        }
+        //获取会议资料
+        Map<String, String> fileMap = meetingResourceList(attendeesMap);
+        if (null == fileMap) {
+            countDownLatch.countDown();//减一
+            failCount++;
+            return;
+        }
+        //下载资料
+        boolean isDown = meetingResourcePreviewDown(attendeesMap, fileMap);
+        if (!isDown) {
+            countDownLatch.countDown();//减一
+            failCount++;
+            downFail++;
+            return;
+        }
+        downSuccess++;
+        //登出
+        loginOutForMobile(attendeesMap);
+
+        long end = System.currentTimeMillis();
+        threadMap.put(index, new ThreadRecord(start, end));
+        countDownLatch.countDown();//减一
+//        log.info(countDownLatch.getCount() + "");
+        successCount++;
+    }
+
+    public boolean meetingResourceDown(Map<String, String> map, Map<String, String> fileMap) {
+        long start = System.currentTimeMillis();
+        String materialsName = fileMap.get("materialsName");
+        String materialsDownloadAddress = fileMap.get("materialsDownloadAddress");
+
+        FileOutputStream fos = null;
+        InputStream is = null;
+        try {
+            URL url = new URL(HOST + materialsDownloadAddress);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(120 * 1000);
+            connection.setReadTimeout(120 * 1000);
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                fos = new FileOutputStream("F:\\ResourceDown\\" + getUUID32() + "_" + materialsName);
+                is = connection.getInputStream();
+                byte[] bytes = new byte[10 * 1024];// 10k
+                int len;
+                while ((len = is.read(bytes)) != -1) {
+                    fos.write(bytes, 0, len);
+                    fos.flush();
+                }
+                fos.close();
+                downTimeMap.put(index, (System.currentTimeMillis() - start));
+                return true;
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            downTimeMap.put(index, (System.currentTimeMillis() - start));
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            downTimeMap.put(index, (System.currentTimeMillis() - start));
+            return false;
+        } finally {
+            try {
+                if (null != fos) {
+                    fos.close();
+                }
+                if (null != is) {
+                    is.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        downTimeMap.put(index, (System.currentTimeMillis() - start));
+        return false;
+    }
+
+    public boolean meetingResourcePreviewDown(Map<String, String> map, Map<String, String> fileMap) {
+        long start = System.currentTimeMillis();
+        String materialsPreviewAddress = fileMap.get("materialsPreviewAddress");
+        String materialsName = fileMap.get("materialsName");
+
+        materialsName = materialsName.substring(0, materialsName.lastIndexOf("."));
+
+        FileOutputStream fos = null;
+        InputStream is = null;
         try {
             URL url = new URL(HOST + materialsPreviewAddress);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -62,37 +187,73 @@ public class ResourceDownRunnable implements Runnable {
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                InputStream is = connection.getInputStream();
-                byte[] bytes = new byte[10 * 1024];
+                materialsPreviewAddress = materialsPreviewAddress.substring(materialsPreviewAddress.lastIndexOf("."), materialsPreviewAddress.length());
+                fos = new FileOutputStream("F:\\ResourceDown\\" + getUUID32() + "_" + materialsName + materialsPreviewAddress);
+                is = connection.getInputStream();
+                byte[] bytes = new byte[10 * 1024];// 10k
+                int len;
+                while ((len = is.read(bytes)) != -1) {
+                    fos.write(bytes, 0, len);
+                    fos.flush();
+                }
+                fos.close();
+                downTimeMap.put(index, (System.currentTimeMillis() - start));
+                return true;
             }
         } catch (MalformedURLException e) {
             e.printStackTrace();
+            downTimeMap.put(index, (System.currentTimeMillis() - start));
+            return false;
         } catch (IOException e) {
             e.printStackTrace();
+            downTimeMap.put(index, (System.currentTimeMillis() - start));
+            return false;
+        } finally {
+            try {
+                if (null != fos) {
+                    fos.close();
+                }
+                if (null != is) {
+                    is.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
-
+        downTimeMap.put(index, (System.currentTimeMillis() - start));
+        return false;
     }
 
 
-    public String meetingResourceList(Map<String, String> map) {
+    public Map<String, String> meetingResourceList(Map<String, String> map) {
         String tokenMD5 = map.get("tokenMD5");
         String sid = map.get("sid");
         String meetingResourceList_Param = "meetingId=" + meetingId + "&token=" + tokenMD5 + "&sid=" + sid;
-        String meetingResourceList_Result = PostUrlAsString(meetingResourceList_Param, meetingResourceList_Param);
+        String meetingResourceList_Result = PostUrlAsString(meetingResourceList_URL, meetingResourceList_Param);
         if (meetingResourceList_Result.equals("fail")) {
             return null;
         }
         JsonParser parser = new JsonParser();
         JsonObject asJsonObject = parser.parse(meetingResourceList_Result).getAsJsonObject();
         JsonArray asJsonArray = asJsonObject.get("responseObject").getAsJsonObject().get("materialList").getAsJsonArray();
+        if (asJsonArray.size() <= 0) {
+            log.error("会议无资料");
+            return null;
+        }
         String materialsPreviewAddress = asJsonArray.get(0).getAsJsonObject().get("materialsPreviewAddress").getAsString();
-        return materialsPreviewAddress;
+        String materialsName = asJsonArray.get(0).getAsJsonObject().get("materialsName").getAsString();
+        String materialsDownloadAddress = asJsonArray.get(0).getAsJsonObject().get("materialsDownloadAddress").getAsString();
+        Map<String, String> fileMap = new HashMap<>();
+        fileMap.put("materialsPreviewAddress", materialsPreviewAddress);
+        fileMap.put("materialsName", materialsName);
+        fileMap.put("materialsDownloadAddress", materialsDownloadAddress);
+        return fileMap;
     }
 
     public Map<String, String> loginForMobile(String user, String pass) {
         long start = System.currentTimeMillis();
         String login_Param = "password=" + user + "&equipmentCode=" + getUUID32() + "&lang=zh_CN&equipmentType=Android&username=" + pass + "&equipmentOsVersion=8.0.0&token=d6d4f6c27f5ddadf2d4bd18ffb1d3977&sid=sys041530688064415";
+      //  String login_Param = "password=" + "hgcs01" + "&equipmentCode=" + getUUID32() + "&lang=zh_CN&equipmentType=Android&username=" + "hgcs01" + "&equipmentOsVersion=8.0.0&token=d6d4f6c27f5ddadf2d4bd18ffb1d3977&sid=sys041530688064415";
         String login_Result = PostUrlAsString(login_MobilURL, login_Param);
         //   log.info(login_Result);
         if (login_Result.equals("fail")) {
@@ -127,6 +288,14 @@ public class ResourceDownRunnable implements Runnable {
 //        log.info("connectTime:" + (end - start) / 1000 + "s");
         loginTimeMap.put(index, (end - start));
         return map;
+    }
+
+    public void loginOutForMobile(Map<String, String> map) {
+        String tokenMD5 = map.get("tokenMD5");
+        String sid = map.get("sid");
+        String loginOut_Param = "token=" + tokenMD5 + "&sid=" + sid;
+        String loginOut_Result = PostUrlAsString(loginLogout_MobilURL, loginOut_Param);
+//        log.info(loginOut_Result);
     }
 
     public String PostUrlAsString(String url, String post) {
@@ -240,6 +409,10 @@ public class ResourceDownRunnable implements Runnable {
         }
         return "";
     }
+
+  /*  public String getFileName(String url){
+
+    }*/
 
     public String getUUID32() {
         String uuid = UUID.randomUUID().toString().replace("-", "").toLowerCase();

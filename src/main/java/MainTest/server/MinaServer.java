@@ -6,6 +6,7 @@ import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.textline.TextLineCodecFactory;
 import org.apache.mina.filter.executor.ExecutorFilter;
+import org.apache.mina.filter.keepalive.KeepAliveFilter;
 import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
@@ -17,12 +18,20 @@ import java.nio.charset.Charset;
 
 public class MinaServer {
     private static final Logger log = LoggerFactory.getLogger(MinaServer.class);
+    /** 30秒后超时 */
+    private static final int IDELTIMEOUT = 15;
+    /** 15秒发送一次心跳包 */
+    private static final int HEARTBEATRATE = 15;
+    /** 心跳包内容 */
+    private static final String HEARTBEATREQUEST = "HEARTBEATREQUEST";
+    private static final String HEARTBEATRESPONSE = "HEARTBEATRESPONSE";
+
     public static void main(String[] args) {
 
         log.info("start...");
         IoAcceptor ioAcceptor = new NioSocketAcceptor();
         ioAcceptor.getSessionConfig().setReadBufferSize(2048*2);
-        ioAcceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, 10);
+        ioAcceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, IDELTIMEOUT);
         DefaultIoFilterChainBuilder filterChain = ioAcceptor.getFilterChain();
         TextLineCodecFactory factory = new TextLineCodecFactory(Charset.forName("UTF-8"));
         factory.setDecoderMaxLineLength(Integer.MAX_VALUE);
@@ -31,6 +40,14 @@ public class MinaServer {
         filterChain.addLast("codec", new ProtocolCodecFilter(factory));
         ioAcceptor.setHandler(new MinServerHandler());
         // filterChain.addLast("logging", new LoggingFilter());
+
+        KeepAliveMessageFactoryImpl keepAliveMessageFactory = new KeepAliveMessageFactoryImpl();
+        KeepAliveRequestTimeoutHandlerImpl keepAliveRequestTimeoutHandler = new KeepAliveRequestTimeoutHandlerImpl();
+        KeepAliveFilter keepAliveFilter = new KeepAliveFilter(keepAliveMessageFactory,IdleStatus.READER_IDLE,keepAliveRequestTimeoutHandler);
+        keepAliveFilter.setRequestTimeout(HEARTBEATRATE);
+        keepAliveFilter.setForwardEvent(true);
+
+        ioAcceptor.getFilterChain().addLast("heartbeat", keepAliveFilter);
         try {
             ioAcceptor.bind(new InetSocketAddress(7007));
             log.info("start success");

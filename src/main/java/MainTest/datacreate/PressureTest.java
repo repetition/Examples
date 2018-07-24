@@ -9,6 +9,7 @@ import com.google.gson.JsonParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -21,7 +22,9 @@ public class PressureTest {
     private static final Logger log = LoggerFactory.getLogger(PressureTest.class);
     public static final ThreadPoolExecutor executor = new ThreadPoolExecutor(20, 30, 1L, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
     //当前会议id
-    public static final String meetingId = "8a8a8be06468e1cc01646a25c26f42be";
+   // public static final String meetingId = "4028496864b2ad860164b2b4a095001d"; //500
+   // public static final String meetingId = "4028496864b2ad860164b2c73ec02b1e"; //400
+     public static final String meetingId = "4028496864b2ad860164b307372e40e4"; //1000
 
     //签到成功
     public static int failCount = 0;
@@ -32,8 +35,90 @@ public class PressureTest {
     //登录失败
     public static int loginFailCount = 0;
 
+
+    public static int downSuccess = 0;
+    public static int downFail = 0;
+
     public static void main(String[] args) {
-        signMeeting();
+        //下载资料
+       // resourceDown();
+        //签到
+          signMeeting();
+    }
+
+    public static void resourceDown() {
+        File[] files = new File("F:\\ResourceDown\\").listFiles();
+        for (File file : files) {
+            file.delete();
+        }
+        long start = System.currentTimeMillis();
+        //登录
+       // Map<String, String> stringStringMap = loginForMobile("admin", "admin");
+        Map<String, String> stringStringMap = loginForMobile("hgcs01", "hgcs01");
+        //获取所有参会人
+        JsonObject jsonObject = getAttendeesByMeeting(stringStringMap);
+        JsonObject responseObject = jsonObject.getAsJsonObject("responseObject");
+        JsonArray innerAttendee = responseObject.get("innerAttendee").getAsJsonArray();
+        String meetingRoomId = responseObject.get("meetingRoom").getAsJsonObject().get("id").getAsString();
+
+        // 建立ExecutorService线程池
+        ExecutorService exec = Executors.newFixedThreadPool(innerAttendee.size()-1);
+        // 计数器
+        CountDownLatch countDownLatch = new CountDownLatch(innerAttendee.size());
+        ConcurrentHashMap<Integer, ThreadRecord> threadMap = new ConcurrentHashMap<Integer, ThreadRecord>();
+        //登录时间集合
+        ConcurrentHashMap<Integer, Long> loginTimeMap = new ConcurrentHashMap<Integer, Long>();
+        //下载时间集合
+        ConcurrentHashMap<Integer, Long> downTimeMap = new ConcurrentHashMap<>();
+
+        ConcurrentHashMap<Integer, Long> listTimeMap = new ConcurrentHashMap<>();
+
+        for (int i = 0; i < innerAttendee.size(); i++) {
+            JsonObject asJsonObject = innerAttendee.get(i).getAsJsonObject();
+            String id = asJsonObject.get("id").getAsString();
+            String name = asJsonObject.get("name").getAsString();
+            String personId = asJsonObject.get("personId").getAsString();
+            log.info("参会人：" + "id:" + id + "- name:" + name + " - personId:" + personId);
+            if (name.equals("系统管理员")) {
+                continue;
+            }
+            ResourceDownRunnable runnable = new ResourceDownRunnable(i, countDownLatch, threadMap, loginTimeMap, asJsonObject, downTimeMap);
+            exec.submit(runnable);
+            // new Thread(runnable).start();
+        }
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        long end = System.currentTimeMillis();
+        log.info("登录成功：" + loginCount + " - 失败：" + loginFailCount);
+        log.info("总耗时 ：" + (end - start) / 1000 + "s");
+        log.info("fail:" + failCount + " success:" + successCount);
+
+        long loginTotalTime = 0;
+        for (Map.Entry<Integer, Long> longEntry : loginTimeMap.entrySet()) {
+            Long value = longEntry.getValue();
+            loginTotalTime += value;
+        }
+        log.info(loginTimeMap.size() + "");
+       // log.info("登录平均耗时：" + (loginTotalTime / loginTimeMap.size()) / 1000 + "s");
+        log.info("登录平均耗时：" + (loginTotalTime / loginTimeMap.size())  + "ms");
+
+        long downTotalTime = 0;
+        for (Map.Entry<Integer, Long> longEntry : downTimeMap.entrySet()) {
+            Long value = longEntry.getValue();
+            downTotalTime += value;
+        }
+        log.info("下载成功：" + downSuccess + " - 失败：" + downFail);
+
+        log.info(loginTimeMap.size() + "");
+        int fileLength = new File("F:\\ResourceDown\\").listFiles().length;
+      //  log.info("下载平均耗时：" + (downTotalTime / downTimeMap.size()) / 1000 + "s" + " - 下载总数：" + fileLength);
+        log.info("下载平均耗时：" + (downTotalTime / downTimeMap.size())  + "ms" + " - 下载总数：" + fileLength);
+
+        exec.shutdown();
 
     }
 
@@ -53,6 +138,9 @@ public class PressureTest {
         CountDownLatch countDownLatch = new CountDownLatch(innerAttendee.size() - 1);
         ConcurrentHashMap<Integer, ThreadRecord> threadMap = new ConcurrentHashMap<Integer, ThreadRecord>();
         ConcurrentHashMap<Integer, Long> loginTimeMap = new ConcurrentHashMap<Integer, Long>();
+        ConcurrentHashMap<Integer, Long> signTimeMap = new ConcurrentHashMap<>();
+
+        ConcurrentHashMap<Integer, Map<String,Long>> listTimeMap = new ConcurrentHashMap<>();
 
         for (int i = 0; i < innerAttendee.size(); i++) {
             JsonObject asJsonObject = innerAttendee.get(i).getAsJsonObject();
@@ -63,10 +151,28 @@ public class PressureTest {
             if (name.equals("系统管理员")) {
                 continue;
             }
-            SignRunnable runnable = new SignRunnable(i, countDownLatch, threadMap, loginTimeMap, asJsonObject, meetingRoomId);
+            SignRunnable runnable = new SignRunnable(i, countDownLatch, threadMap, loginTimeMap, asJsonObject, meetingRoomId, signTimeMap,listTimeMap);
             exec.submit(runnable);
             // new Thread(runnable).start();
         }
+/*
+        new Thread(){
+            @Override
+            public void run() {
+                while (true){
+                    try {
+                        Thread.sleep(1000L);
+                        log.info(countDownLatch.getCount()+"");
+
+                        if (countDownLatch.getCount()==0){
+                            break;
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }.start();*/
 
         try {
             countDownLatch.await();
@@ -76,15 +182,24 @@ public class PressureTest {
         long end = System.currentTimeMillis();
         log.info("登录成功：" + loginCount + " - 失败：" + loginFailCount);
         log.info("总耗时 ：" + (end - start) / 1000 + "s");
-        log.info("fail:" + failCount + " success:" + successCount);
-
+            log.info("fail:" + failCount + " success:" + successCount);
         long totalTime = 0;
         for (Map.Entry<Integer, Long> longEntry : loginTimeMap.entrySet()) {
             Long value = longEntry.getValue();
             totalTime += value;
         }
         log.info(loginTimeMap.size() + "");
+        log.info("登录成功：" + loginTimeMap.size() + " - 失败：" + (innerAttendee.size()-1-loginTimeMap.size()));
         log.info("登录平均耗时：" + (totalTime / loginTimeMap.size()) / 1000 + "s");
+
+        long signTotalTime = 0;
+        for (Map.Entry<Integer, Long> longEntry : signTimeMap.entrySet()) {
+            Long value = longEntry.getValue();
+            signTotalTime += value;
+        }
+
+        log.info("签到成功："+signTimeMap.size() + " - 失败："+(loginTimeMap.size()-signTimeMap.size()));
+        log.info("签到平均耗时：" + (signTotalTime / signTimeMap.size()) / 1000 + "s");
     }
 
 
