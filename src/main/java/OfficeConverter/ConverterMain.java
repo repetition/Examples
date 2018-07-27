@@ -41,8 +41,8 @@ public class ConverterMain {
         String target = "E:\\b85be994528b6f4c4ef83c3b5ef00e2a.pdf";
        // word2pdf(source,target);
        // ppt2pdf(source,target);
-       // ppt2PDF(source,target);
-        Ex2PDF("E:\\无纸化测试附件\\xls\\信息发布屏组件需求说明.xlsx","E:\\无纸化测试附件\\xls\\信息发布屏组件需求说明.pdf");
+        ppt2PDF(source,target);
+      //  Ex2PDF("E:\\无纸化测试附件\\xls\\信息发布屏组件需求说明.xlsx","E:\\无纸化测试附件\\xls\\信息发布屏组件需求说明.pdf");
 
     }
     public static boolean word2pdf(String source, String target) {

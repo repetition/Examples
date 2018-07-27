@@ -6,12 +6,11 @@
 
     <groupId>MainTest</groupId>
     <artifactId>MainTest</artifactId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <version>1.0</version>
-    <modules>
+<!--    <modules>
         <module>SystemInfo</module>
-        <module>SystemInfo</module>
-    </modules>
+    </modules>-->
 
     <repositories>
         <repository>
@@ -206,7 +205,7 @@
     </dependencies>
     <build>
         <plugins>
-            <plugin>
+          <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.7.0</version>
@@ -224,8 +223,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Allows the example to be run via 'mvn compile exec:java' -->
-            <plugin>
+  <!--          <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.6.0</version>
@@ -233,11 +231,9 @@
                     <mainClass>SystemInfo.SigarUtil</mainClass>
                     <includePluginDependencies>false</includePluginDependencies>
                 </configuration>
-            </plugin>
+            </plugin>-->
 
-
-            <!-- 使打包的jar文件包含了主函数的入口 -->
-            <plugin>
+  <!--          <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>1.2.1</version>
@@ -250,20 +246,19 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>SystemInfo.SigarUtil</mainClass>
+                                    <mainClass>JAVAFX.JavaFXWebView</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>SystemInfo.SigarUtil</mainClass>
+                            <mainClass>JAVAFX.JavaFXWebView</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -271,19 +266,30 @@
                     </descriptorRefs>
                 </configuration>
             </plugin>
-
-
+-->
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>JAVAFX.JavaFXWebView</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                <execution>
+                    <id>make-assembly</id>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>assembly</goal>
+                    </goals>
+                </execution>
+                </executions>
+            </plugin>
         </plugins>
-
-        <!--      <resources>
-                  <resource>
-                      <directory>src/main/resources</directory>
-                      <targetPath>${project.build.directory}</targetPath>
-                      <includes>
-                          <include>log4j.properties</include>
-                      </includes>
-                  </resource>
-              </resources>-->
     </build>
 
 </project>

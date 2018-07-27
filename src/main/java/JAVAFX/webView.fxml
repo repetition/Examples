@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.web.WebView?>
+
+<VBox prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="JAVAFX.WebViewController">
+   <children>
+
+      <WebView fx:id="mWebView" layoutX="-2.0" layoutY="3.0" prefHeight="450.0" prefWidth="800.0" VBox.vgrow="ALWAYS" />
+      <AnchorPane prefHeight="27.0" prefWidth="800.0">
+         <children>
+             <Button fx:id="mButton" layoutX="360.0" layoutY="1.0" mnemonicParsing="false" onAction="#onAction" text="放大" />
+            <TextField fx:id="mTFInput" layoutY="1.0" promptText="地址" />
+            <Button fx:id="mBTOpen" layoutX="168.0" layoutY="1.0" mnemonicParsing="false" onAction="#onOpenAction" text="打开" />
+            <Button fx:id="mBTBack" layoutX="217.0" layoutY="1.0" mnemonicParsing="false" onAction="#onBackAction" text="后退" />
+            <Button layoutX="268.0" layoutY="1.0" mnemonicParsing="false" onAction="#onRefreshAction" text="刷新" />
+            <Button fx:id="mBTJavaFXCallJs" layoutX="429.0" layoutY="1.0" mnemonicParsing="false" onAction="#onJavaFXCallJsAction" text="javaFX Call Js" />
+            <Button fx:id="mBTJavaFXCallJs1" layoutX="541.0" layoutY="1.0" mnemonicParsing="false" text="javaFX Call Js1" onAction="#onJavaFXCallJs1Action" />
+         </children>
+      </AnchorPane>
+   </children>
+</VBox>

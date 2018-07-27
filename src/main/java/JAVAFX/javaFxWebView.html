@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script type="text/javascript">
+    function alert() {
+        window.document.getElementById("div").innerText = 'JavaFx Call Js';
+    }
+    function alert1(str) {
+        window.document.getElementById("div").innerText = 'JavaFx Call Js:'+str;
+    }
+    function jsCallJava() {
+      //  window.document.getElementById("div").innerText = 'js Call JavaFX';
+        app.javaScriptCall();
+    }
+
+    function jsCallJava1(str) {
+        //  window.document.getElementById("div").innerText = 'js Call JavaFX';
+        app.javaScriptCall1(str);
+    }
+</script>
+<div id="div">
+
+</div>
+<input type="button" id="button" value="js Call Java" onclick="jsCallJava()">
+<input type="button" id="button1" value="js Call Java1" onclick="jsCallJava1('call java')">
+
+</body>
+</html>
