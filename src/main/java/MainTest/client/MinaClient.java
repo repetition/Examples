@@ -9,6 +9,7 @@ import org.apache.mina.filter.codec.textline.TextLineCodecFactory;
 import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.filter.keepalive.KeepAliveFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,7 @@ public class MinaClient {
 
         // filterChain.addLast("logging", new LoggingFilter());
         try {
-            ConnectFuture future = connector.connect(new InetSocketAddress("10.10.9.241", 7007));
+            ConnectFuture future = connector.connect(new InetSocketAddress("hygl.thinkwin.com.cn", 80));
             future.awaitUninterruptibly();
             IoSession session = future.getSession();
           //  session.write("[{\"command\":\"END_MEETING\",\"order\":0}]");
@@ -54,6 +55,7 @@ public class MinaClient {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
 
     }
 }
