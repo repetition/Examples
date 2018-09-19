@@ -1,15 +1,8 @@
 package OfficeConverter;
 
-import com.aspose.words.Document;
-import com.aspose.words.SaveFormat;
 import com.google.common.io.Resources;
-import com.jacob.activeX.ActiveXComponent;
-import com.jacob.com.ComThread;
-import com.jacob.com.Dispatch;
-import com.jacob.com.Variant;
 import fr.opensagres.xdocreport.converter.*;
 import fr.opensagres.xdocreport.core.document.DocumentKind;
-import org.hyperic.sigar.Sigar;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -23,8 +16,8 @@ public class ConverterMain {
     private static final int xlTypePDF = 0;
     private static final int ppSaveAsPDF = 32;
 
-    public static void main(String[] args) {
-/*        String dir = "E:\\ThinkWin\\";
+/*    public static void main(String[] args) {
+*//*        String dir = "E:\\ThinkWin\\";
 // load the file to be converted
         Document document = null;
         try {
@@ -34,7 +27,7 @@ public class ConverterMain {
             document.save(dir + "output3.html", SaveFormat.HTML);
         } catch (Exception e) {
             e.printStackTrace();
-        }*/
+        }*//*
 
         initApp();
         String source = "E:\\b85be994528b6f4c4ef83c3b5ef00e2a.pptx";
@@ -106,13 +99,13 @@ public class ConverterMain {
             }
         }
     }
-    /**
+    *//**
      * PPT文档转换
      *
      * @param inputFile
      * @param pdfFile
      * @author SHANHY
-     */
+     *//*
     private static boolean ppt2PDF(String inputFile, String pdfFile) {
         ComThread.InitSTA();
 
@@ -155,14 +148,14 @@ public class ConverterMain {
         return false;
     }
 
-    /***
+    *//***
      *
      * Excel转化成PDF
      *
      * @param inputFile
      * @param pdfFile
      * @return
-     */
+     *//*
     private static int Ex2PDF(String inputFile, String pdfFile) {
         try {
 
@@ -189,13 +182,13 @@ public class ConverterMain {
             }, new int[1]);
 
             // 这里放弃使用SaveAs
-            /*
+            *//*
              * Dispatch.invoke(excel,"SaveAs",Dispatch.Method,new Object[]{
              * outFile, new Variant(57), new Variant(false), new Variant(57),
              * new Variant(57), new Variant(false), new Variant(true), new
              * Variant(57), new Variant(true), new Variant(true), new
              * Variant(true) },new int[1]);
-             */
+             *//*
             long date2 = new Date().getTime();
             int time = (int) ((date2 - date) / 1000);
             Dispatch.call(excel, "Close", new Variant(false));
@@ -286,5 +279,5 @@ public class ConverterMain {
         } catch (XDocConverterException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 }

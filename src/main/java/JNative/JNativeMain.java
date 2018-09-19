@@ -1,9 +1,6 @@
 package JNative;
 
 import com.google.common.io.Resources;
-import org.xvolks.jnative.JNative;
-import org.xvolks.jnative.Type;
-import org.xvolks.jnative.exceptions.NativeException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -23,7 +20,7 @@ public class JNativeMain {
         //解析结构指针的内容
 */
         addLibrary();
-        try {
+ /*       try {
             System.loadLibrary("JNativeCpp");
             String params = "protocol=TCP,ipaddress=10.10.10.121,port=4370,timeout=2000,passwd=";
             JNative jNative = new JNative("plcommpro.dll", "Connect");
@@ -37,7 +34,7 @@ public class JNativeMain {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
 

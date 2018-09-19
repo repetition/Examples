@@ -1,6 +1,5 @@
 package formdata;
 
-import com.jacob.com.STA;
 
 import java.io.*;
 import java.net.*;
