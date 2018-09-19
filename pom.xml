@@ -8,17 +8,12 @@
     <artifactId>MainTest</artifactId>
     <packaging>jar</packaging>
     <version>1.0</version>
-<!--    <modules>
-        <module>SystemInfo</module>
-    </modules>-->
-
-    <repositories>
-        <repository>
-            <id>AsposeJavaAPI</id>
-            <name>Aspose Java API</name>
-            <url>https://artifact.aspose.com/repo/</url>
-        </repository>
-    </repositories>
+    <modules>
+        <module>../jnativehook</module>
+    </modules>
+    <!--    <modules>
+            <module>SystemInfo</module>
+        </modules>-->
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -26,7 +21,20 @@
 
     </properties>
 
-<!--    <dependencies>
+    <dependencies>
+
+        <!--爬虫框架-->
+        <dependency>
+            <groupId>us.codecraft</groupId>
+            <artifactId>webmagic-core</artifactId>
+            <version>0.7.3</version>
+        </dependency>
+        <dependency>
+            <groupId>us.codecraft</groupId>
+            <artifactId>webmagic-extension</artifactId>
+            <version>0.7.3</version>
+        </dependency>
+
         <dependency>
             <groupId>com.jacob</groupId>
             <artifactId>jacob</artifactId>
@@ -34,10 +42,16 @@
         </dependency>
 
         <dependency>
+            <groupId>jnativehook</groupId>
+            <artifactId>org.jnativehook</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>JNative</groupId>
             <artifactId>JNative</artifactId>
             <version>JNative_1.4RC3</version>
-        </dependency>-->
+        </dependency>
 
         <!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna -->
         <dependency>
@@ -45,14 +59,12 @@
             <artifactId>jna</artifactId>
             <version>4.5.1</version>
         </dependency>
-
-
-        <!--        <dependency>
-                    <groupId>aspose-words</groupId>
-                    <artifactId>aspose-words</artifactId>
-              &lt;!&ndash;      <version>16.4</version>&ndash;&gt;
-                    <version>15.8.0</version>
-                </dependency>-->
+        <!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna-platform -->
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna-platform</artifactId>
+            <version>4.5.1</version>
+        </dependency>
 
 
         <!-- https://mvnrepository.com/artifact/org.fusesource/sigar -->
@@ -72,84 +84,18 @@
 -->
 
 
-<!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.hyperic/sigar-dist &ndash;&gt;
-        <dependency>
-            <groupId>org.hyperic</groupId>
-            <artifactId>sigar-dist</artifactId>
-            <version>1.6.5.132-6</version>
-        </dependency>-->
-        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
-        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.35</version>
         </dependency>
 
-<!--        &lt;!&ndash; https://mvnrepository.com/artifact/javax.mail/mail &ndash;&gt;
-        <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-            <version>1.4</version>
-        </dependency>-->
-        <!-- https://mvnrepository.com/artifact/com.sun.mail/javax.mail -->
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
             <version>1.5.4</version>
         </dependency>
 
-
-        <dependency>
-            <groupId>com.aspose</groupId>
-            <artifactId>aspose-words</artifactId>
-            <version>18.5</version>
-            <classifier>jdk16</classifier>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>3.17</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.docx4j/docx4j -->
-        <dependency>
-            <groupId>org.docx4j</groupId>
-            <artifactId>docx4j</artifactId>
-            <version>3.3.7</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.odftoolkit/odfdom-java -->
-        <dependency>
-            <groupId>org.odftoolkit</groupId>
-            <artifactId>odfdom-java</artifactId>
-            <version>0.8.7</version>
-        </dependency>
-
-
-        <dependency>
-            <groupId>docs-to-pdf-converter</groupId>
-            <artifactId>docs-to-pdf-converter</artifactId>
-            <version>1.8</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/fr.opensagres.xdocreport/fr.opensagres.xdocreport.document.docx -->
-        <dependency>
-            <groupId>fr.opensagres.xdocreport</groupId>
-            <artifactId>fr.opensagres.xdocreport.document.docx</artifactId>
-            <version>2.0.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>fr.opensagres.xdocreport</groupId>
-            <artifactId>fr.opensagres.xdocreport.document.pptx</artifactId>
-            <version>2.0.1</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/fr.opensagres.xdocreport/fr.opensagres.xdocreport.converter.docx.xwpf -->
-        <dependency>
-            <groupId>fr.opensagres.xdocreport</groupId>
-            <artifactId>fr.opensagres.xdocreport.converter.docx.xwpf</artifactId>
-            <version>2.0.1</version>
-        </dependency>
 
 
         <!-- https://mvnrepository.com/artifact/io.netty/netty-all -->

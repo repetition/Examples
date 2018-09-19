@@ -1,6 +1,5 @@
 package SystemInfo;
 
-import com.google.common.io.Resources;
 import org.hyperic.sigar.*;
 
 import java.io.File;
@@ -10,7 +9,7 @@ public class SigarUtil {
 
     private static Sigar initSigar() {
         try {
-            String file = Resources.getResource("sigar/sigar-amd64-winnt.dll").getFile();
+            String file =SigarUtil.class .getResource("sigar/sigar-amd64-winnt.dll").getFile();
             System.out.println(file);
             File classPath = new File(file).getParentFile();
 
@@ -31,7 +30,7 @@ public class SigarUtil {
         String OS = System.getProperty("os.name").toLowerCase();
         if (OS.indexOf("win") >= 0) {
             return true;
-        } else return false;
+        } else {return false;}
     }
 
 

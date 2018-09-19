@@ -3,13 +3,31 @@ package MainTest.client;
 import MainTest.server.MinServerHandler;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.IoHandlerAdapter;
+import org.apache.mina.core.service.IoService;
+import org.apache.mina.core.service.IoServiceListener;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MinaClientHandler extends IoHandlerAdapter {
+public class MinaClientHandler extends IoHandlerAdapter implements IoServiceListener {
     private static final Logger log = LoggerFactory.getLogger(MinaClientHandler.class);
+
+    @Override
+    public void serviceActivated(IoService service) throws Exception {
+
+    }
+
+    @Override
+    public void serviceIdle(IoService service, IdleStatus idleStatus) throws Exception {
+
+    }
+
+    @Override
+    public void serviceDeactivated(IoService service) throws Exception {
+
+    }
+
     @Override
     public void sessionCreated(IoSession session) throws Exception {
         super.sessionCreated(session);
@@ -26,6 +44,11 @@ public class MinaClientHandler extends IoHandlerAdapter {
     public void sessionClosed(IoSession session) throws Exception {
         super.sessionClosed(session);
         log.info(session.getRemoteAddress() + " - sessionClosed");
+    }
+
+    @Override
+    public void sessionDestroyed(IoSession session) throws Exception {
+
     }
 
     @Override

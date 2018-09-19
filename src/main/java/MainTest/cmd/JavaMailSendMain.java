@@ -8,17 +8,21 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 public class JavaMailSendMain {
-/*    public static final String SMTPSERVER = "smtp.exmail.qq.com";
+    public static final String SMTPSERVER = "smtp.exmail.qq.com";
     public static final String SMTPPORT = "465";
     public static final String ACCOUT = "thinkwin-service@thinkwin.com.cn";
-    public static final String PWD = "3Athinkwin";
-    public static final String TOUser = "zhangbo@thinkwin.com.cn";*/
-    public static final String SMTPSERVER = "218.26.224.150";
+    public static final String PWD = "r4BVr22X";
+    public static final String TOUser = "yangkai@thinkwin.com.cn";
+/*    public static final String SMTPSERVER = "218.26.224.150";
     public static final String SMTPPORT = "25";
     public static final String ACCOUT = "test1@sxzq.com";
     public static final String PWD = "xxjsb12345611";
-    public static final String TOUser = "zhangbo@thinkwin.com.cn";
-
+    public static final String TOUser = "zhangbo@thinkwin.com.cn";*/
+/*public static final String SMTPSERVER = "smtp.163.com";
+    public static final String SMTPPORT = "465";
+    public static final String ACCOUT = "ncvt2018@163.com";
+    public static final String PWD = "jszx2018";
+    public static final String TOUser = "yangkai@thinkwin.com.cn";*/
 
 
     public static void main(String[] args) throws Exception {
@@ -41,7 +45,7 @@ public class JavaMailSendMain {
         props.setProperty("mail.smtp.port", SMTPPORT);
         props.put("mail.smtp.auth", "true");
 
-        boolean isSsl = false;
+        boolean isSsl = true;
         if (isSsl) {
             props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
             props.setProperty("mail.smtp.auth", "true"); // 需要请求认证
@@ -88,7 +92,7 @@ public class JavaMailSendMain {
         // 设置发送邮件方
         msg.setFrom(fromAddress);
         InternetAddress receiveAddress = new InternetAddress(
-                TOUser, "test", "utf-8");
+                TOUser, "GOD", "utf-8");
         // 设置邮件接收方
         msg.setRecipient(RecipientType.TO, receiveAddress);
         // 设置邮件标题

@@ -1,5 +1,6 @@
 package MainTest.server;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IdleStatus;
@@ -26,7 +27,14 @@ public class MinaServer {
     private static final String HEARTBEATREQUEST = "HEARTBEATREQUEST";
     private static final String HEARTBEATRESPONSE = "HEARTBEATRESPONSE";
 
+    static {
+        System.out.println(MinaServer.class.getResource("log4j.properties"));
+        PropertyConfigurator.configure(MinaServer.class.getResource("log4j.properties"));
+    }
+
     public static void main(String[] args) {
+
+
 
         log.info("start...");
         IoAcceptor ioAcceptor = new NioSocketAcceptor();

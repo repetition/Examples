@@ -4,9 +4,11 @@ import com.google.gson.JsonObject;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.text.FontSmoothingType;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
@@ -63,6 +65,17 @@ public class WebViewController implements Initializable {
 
         String userAgent = webEngine.getUserAgent();
         log.info(userAgent);
+
+        mWebView.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                log.info(event.getCode()+"");
+
+                log.info(event.getCharacter()+"");
+                log.info(event.getEventType().getName()+"");
+                log.info(event.getText()+"");
+            }
+        });
     }
 
     public void setStage(Stage primaryStage) {
