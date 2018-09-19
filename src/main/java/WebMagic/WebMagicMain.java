@@ -16,6 +16,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * http://www.caam.org.cn/newslist/a95-1.html  公告信息
+ */
 public class WebMagicMain {
     private static final Logger log = LoggerFactory.getLogger(WebMagicMain.class);
 
