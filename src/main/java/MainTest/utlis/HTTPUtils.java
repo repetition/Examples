@@ -12,6 +12,7 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class HTTPUtils {
     private static final Logger log = LoggerFactory.getLogger(HTTPUtils.class);
@@ -23,15 +24,35 @@ public class HTTPUtils {
         return proxy;
     }
 
+    public static String formatPostParameters(Map<String,String> map){
+        Set<Map.Entry<String, String>> entrySet = map.entrySet();
+        StringBuilder builder = new StringBuilder();
+        int flag = 0;
+        for (Map.Entry<String, String> stringEntry : entrySet) {
+
+            String key = stringEntry.getKey();
+            String value = stringEntry.getValue();
+            if (flag == 0) {
+                builder.append(key+"="+value);
+                flag++;
+                continue;
+            }
+            builder.append("&"+key+"="+value);
+        }
+        log.info(builder.toString());
+        return builder.toString();
+    }
+
     public synchronized static String PostUrlAsString(String url, String post) {
 
         StringBuilder stringBuilder = new StringBuilder();
         HttpURLConnection connection = null;
         try {
-            connection = (HttpURLConnection) new URL(url).openConnection();
+            connection = (HttpURLConnection) new URL(url).openConnection(getProxy());
             connection.setConnectTimeout(1200);
             connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36");
             connection.setRequestProperty("Connection", "keep-alive");
+          //  connection.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
             connection.setDoInput(true);
             if (null == post) {
                 connection.setRequestMethod("GET");

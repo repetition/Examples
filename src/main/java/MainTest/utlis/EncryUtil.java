@@ -90,4 +90,9 @@ public class EncryUtil {
             return null;
         }
     }
+
+    public static void main(String[] args) {
+
+        System.out.println(encrypt("a41043c5cc558822"));
+    }
 }

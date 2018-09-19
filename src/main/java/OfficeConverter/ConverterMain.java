@@ -1,15 +1,9 @@
 package OfficeConverter;
 
-import com.aspose.words.Document;
-import com.aspose.words.SaveFormat;
-import com.google.common.io.Resources;
 import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.ComThread;
 import com.jacob.com.Dispatch;
 import com.jacob.com.Variant;
-import fr.opensagres.xdocreport.converter.*;
-import fr.opensagres.xdocreport.core.document.DocumentKind;
-import org.hyperic.sigar.Sigar;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -24,17 +18,6 @@ public class ConverterMain {
     private static final int ppSaveAsPDF = 32;
 
     public static void main(String[] args) {
-/*        String dir = "E:\\ThinkWin\\";
-// load the file to be converted
-        Document document = null;
-        try {
-            document = new Document(dir + "test.docx");
-// save in different formats
-            document.save(dir + "output3.pdf", SaveFormat.PDF);
-            document.save(dir + "output3.html", SaveFormat.HTML);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
 
         initApp();
         String source = "E:\\b85be994528b6f4c4ef83c3b5ef00e2a.pptx";
@@ -147,11 +130,12 @@ public class ConverterMain {
         } finally {
             Dispatch.call(ppt, "Close");
             System.out.println("关闭文档");
-            if (app != null)
-                app.invoke("Quit", new Variant[] {});
+            if (app != null){
+                app.invoke("Quit", new Variant[] {});}
         }
         ComThread.Release();
         ComThread.quitMainSTA();
+
         return false;
     }
 
@@ -169,7 +153,7 @@ public class ConverterMain {
             ComThread.InitSTA(true);
             ActiveXComponent ax = new ActiveXComponent("Excel.Application");
             System.out.println("开始转化Excel为PDF...");
-            long date = new Date().getTime();
+            long date = System.currentTimeMillis();
             ax.setProperty("Visible", false);
             ax.setProperty("AutomationSecurity", new Variant(3)); // 禁用宏
             Dispatch excels = ax.getProperty("Workbooks").toDispatch();
@@ -218,7 +202,7 @@ public class ConverterMain {
 
     private static ActiveXComponent initApp() {
         try {
-            String file = Resources.getResource("jacob/jacob-1.18-M3-x64.dll").getFile();
+            String file = ConverterMain.class.getResource("jacob/jacob-1.18-M3-x64.dll").getFile();
             File classPath = new File(file).getParentFile();
             File dllPath = new File(file);
 
@@ -264,27 +248,7 @@ public class ConverterMain {
         String OS = System.getProperty("os.name").toLowerCase();
         if (OS.indexOf("win") >= 0) {
             return true;
-        } else return false;
+        } else{ return false;}
     }
 
-
-    private static void demo1() {
-        // 1) Create options ODT 2 PDF to select well converter form the registry
-        Options options = Options.getFrom(DocumentKind.DOCX).to(ConverterTypeTo.PDF);
-
-// 2) Get the converter from the registry
-        IConverter converter = ConverterRegistry.getRegistry().getConverter(options);
-
-// 3) Convert ODT 2 PDF
-        InputStream in = null;
-        try {
-            in = new FileInputStream(new File("E:\\ThinkWin\\威海office转码异常修改\\20180326 党委会WORD版\\议程00：20180326党委会议议程 修改_word.docx"));
-            OutputStream out = new FileOutputStream(new File("E:\\ThinkWin\\威海office转码异常修改\\20180326 党委会WORD版\\11ODTHelloWord2PDF1.pdf"));
-            converter.convert(in, out, options);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (XDocConverterException e) {
-            e.printStackTrace();
-        }
-    }
 }

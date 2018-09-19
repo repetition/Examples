@@ -1,17 +1,14 @@
 package JNative;
 
-import com.google.common.io.Resources;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.ptr.IntByReference;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.reflect.Field;
-import java.nio.charset.Charset;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -426,11 +423,11 @@ public class NativeMain {
         // trim nulls from end
         int strLen = sb.length;
         //循环遍历是否为0 直到不为0跳出
-        for (; strLen > 0; strLen--)
+        for (; strLen > 0; strLen--) {
             if (sb[strLen - 1] != '\u0000') {
                 break;
             }
-
+        }
         try {
             //将不为0的数据写入
             return new String(sb, 0, strLen, "UTF8");
@@ -489,7 +486,7 @@ public class NativeMain {
 
     public static void addLibrary() {
 
-        String file = Resources.getResource("JNative/plcommpro.dll").getFile();
+        String file = NativeMain.class.getResource("JNative/plcommpro.dll").getFile();
         File classPath = new File(file).getParentFile();
         File dllPath = new File(file);
         String path = System.getProperty("java.library.path");

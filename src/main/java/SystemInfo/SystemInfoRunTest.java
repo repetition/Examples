@@ -1,6 +1,5 @@
 package SystemInfo;
 
-import com.google.common.io.Resources;
 import org.hyperic.sigar.*;
 import org.hyperic.sigar.CpuInfo;
 
@@ -277,7 +276,7 @@ public class SystemInfoRunTest {
 
     private static Sigar initSigar() {
         try {
-            String file = Resources.getResource("sigar/sigar-amd64-winnt.dll").getFile();
+            String file = SystemInfoRunTest.class.getResource("sigar/sigar-amd64-winnt.dll").getFile();
             File classPath = new File(file).getParentFile();
 
             String path = System.getProperty("java.library.path");

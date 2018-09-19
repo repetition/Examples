@@ -1,7 +1,5 @@
 package MainTest.datacreate;
 
-import MainTest.utlis.HTTPUtils;
-import com.google.common.io.Resources;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Side;
@@ -15,7 +13,6 @@ import org.hyperic.sigar.SigarException;
 
 import java.io.File;
 import java.text.DecimalFormat;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -95,7 +92,7 @@ public class Test extends Application {
 
     private static Sigar initSigar() {
         try {
-            String file = Resources.getResource("sigar/sigar-amd64-winnt.dll").getFile();
+            String file = Test.class.getResource("sigar/sigar-amd64-winnt.dll").getFile();
             System.out.println(file);
             File classPath = new File(file).getParentFile();
 

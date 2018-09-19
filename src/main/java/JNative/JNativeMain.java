@@ -1,6 +1,5 @@
 package JNative;
 
-import com.google.common.io.Resources;
 import org.xvolks.jnative.JNative;
 import org.xvolks.jnative.Type;
 import org.xvolks.jnative.exceptions.NativeException;
@@ -43,7 +42,7 @@ public class JNativeMain {
 
     public static void addLibrary() {
 
-        String file = Resources.getResource("JNative/JNativeCpp.dll").getFile();
+        String file = JNativeMain.class.getResource("JNative/JNativeCpp.dll").getFile();
         File classPath = new File(file).getParentFile();
         File dllPath = new File(file);
         String path = System.getProperty("java.library.path");

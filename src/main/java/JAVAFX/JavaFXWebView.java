@@ -1,6 +1,10 @@
 package JAVAFX;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.Event;
+import javafx.event.EventDispatchChain;
+import javafx.event.EventDispatcher;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -10,6 +14,9 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import sun.rmi.runtime.Log;
+
+import java.awt.*;
+import java.awt.event.AWTEventListener;
 
 public class JavaFXWebView extends Application {
     @Override
@@ -26,6 +33,21 @@ public class JavaFXWebView extends Application {
         WebViewController controller = fxmlLoader.getController();
         controller.setStage(primaryStage);
         primaryStage.show();
+
+  /*      primaryStage.setEventDispatcher(new EventDispatcher() {
+            @Override
+            public Event dispatchEvent(Event event, EventDispatchChain tail) {
+                System.out.println(event );
+                return null;
+            }
+        });*/
+
+        Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+            @Override
+            public void eventDispatched(AWTEvent event) {
+                System.out.println(event);
+            }
+        },10L);
     }
 
 
