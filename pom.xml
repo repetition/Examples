@@ -26,7 +26,7 @@
 
     </properties>
 
-    <dependencies>
+<!--    <dependencies>
         <dependency>
             <groupId>com.jacob</groupId>
             <artifactId>jacob</artifactId>
@@ -37,7 +37,7 @@
             <groupId>JNative</groupId>
             <artifactId>JNative</artifactId>
             <version>JNative_1.4RC3</version>
-        </dependency>
+        </dependency>-->
 
         <!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna -->
         <dependency>
