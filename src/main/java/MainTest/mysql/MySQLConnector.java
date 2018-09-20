@@ -3,6 +3,7 @@ package MainTest.mysql;
 
 import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.Statement;
+import sun.rmi.runtime.Log;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -18,7 +19,7 @@ import java.util.TimerTask;
 public class MySQLConnector {
     // JDBC 驱动名及数据库 URL
     static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    static final String DB_URL = "jdbc:mysql://localhost:3306/cr_4_2_3_wbchr";
+    static final String DB_URL = "jdbc:mysql://localhost:3306/cr_zyrf1";
    // static final String DB_URL = "jdbc:mysql://10.10.10.214:3306/cr_4_2_2";
 
     // 数据库的用户名与密码，需要根据自己的设置
@@ -26,6 +27,27 @@ public class MySQLConnector {
     static final String PASS = "root";
 
     public static void main(String[] args) {
+
+        Connection connection = getConn();
+        try {
+            PreparedStatement statement = connection.prepareStatement("select * from prem_mission where mission_name like '%只在web端%' ");
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+
+                String id = resultSet.getString("id");
+
+                System.out.println(id);
+
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    private static void test() {
         Connection conn = getConn();
         new Timer().schedule(new TimerTask() {
             @Override
